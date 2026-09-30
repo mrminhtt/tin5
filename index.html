@@ -1,0 +1,1339 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trò Chơi Trắc Nghiệm - Bài 3: Tìm Kiếm Thông Tin Trong Giải Quyết Vấn Đề</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Lexend', sans-serif;
+            background-color: #0b0f19;
+            color: #f1f5f9;
+            user-select: none;
+        }
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #1e293b;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #475569;
+            border-radius: 3px;
+        }
+        /* Glassmorphism effects */
+        .glass-card {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .glass-card-hover:hover {
+            background: rgba(51, 65, 85, 0.8);
+            border-color: rgba(99, 102, 241, 0.5);
+        }
+        /* Animation keyframes */
+        @keyframes pulseGlow {
+            0%, 100% { box-shadow: 0 0 15px rgba(99, 102, 241, 0.4); }
+            50% { box-shadow: 0 0 30px rgba(99, 102, 241, 0.8); }
+        }
+        .glow-active {
+            animation: pulseGlow 2s infinite;
+        }
+        /* Answer Option styling */
+        .btn-option {
+            transition: all 0.2s ease-in-out;
+        }
+        .btn-option:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        }
+    </style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-2 sm:p-4 overflow-x-hidden">
+
+    <!-- Main 16:9 Game Frame Container -->
+    <div id="game-container" class="w-full max-w-7xl aspect-[16/9] glass-card rounded-3xl p-4 md:p-6 shadow-2xl relative flex flex-col justify-between overflow-hidden border border-slate-700/60 min-h-[600px]">
+        
+        <!-- ================= START SCREEN ================= -->
+        <div id="screen-start" class="flex flex-col items-center justify-center h-full text-center space-y-6 my-auto">
+            <div class="relative">
+                <div class="absolute -inset-1 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 rounded-full blur-lg opacity-75 animate-pulse"></div>
+                <div class="relative w-24 h-24 bg-slate-900 rounded-full flex items-center justify-center border border-indigo-400">
+                    <i class="fa-solid fa-lightbulb text-5xl text-amber-400"></i>
+                </div>
+            </div>
+
+            <div>
+                <span class="px-4 py-1.5 rounded-full text-xs md:text-sm font-semibold bg-indigo-500/20 text-indigo-300 border border-indigo-500/40">
+                    MÔN TIN HỌC - CHỦ ĐỀ 3: BÀI 3
+                </span>
+                <h1 class="text-3xl md:text-5xl font-extrabold mt-3 bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 via-indigo-300 to-pink-400">
+                    TÌM KIẾM THÔNG TIN TRONG GIẢI QUYẾT VẤN ĐỀ
+                </h1>
+                <p class="text-slate-400 text-base md:text-lg mt-2 max-w-2xl mx-auto">
+                    Thử thách tri thức cùng 10 câu hỏi ngẫu nhiên (7 câu Trung bình & 3 câu Khó). Đáp án được xáo trộn tự động mỗi lượt chơi!
+                </p>
+            </div>
+
+            <!-- Rules Summary -->
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 w-full max-w-3xl my-2">
+                <div class="bg-slate-800/80 p-3 rounded-2xl border border-slate-700 flex flex-col items-center">
+                    <i class="fa-solid fa-list-check text-cyan-400 text-xl mb-1"></i>
+                    <span class="text-xs text-slate-400">Số lượng</span>
+                    <span class="font-bold text-slate-200">10 Câu hỏi</span>
+                </div>
+                <div class="bg-slate-800/80 p-3 rounded-2xl border border-slate-700 flex flex-col items-center">
+                    <i class="fa-solid fa-clock text-amber-400 text-xl mb-1"></i>
+                    <span class="text-xs text-slate-400">Thời gian</span>
+                    <span class="font-bold text-slate-200">30 Giây/Câu</span>
+                </div>
+                <div class="bg-slate-800/80 p-3 rounded-2xl border border-slate-700 flex flex-col items-center">
+                    <i class="fa-solid fa-layer-group text-emerald-400 text-xl mb-1"></i>
+                    <span class="text-xs text-slate-400">Tỉ lệ đề</span>
+                    <span class="font-bold text-slate-200">70% TB - 30% Khó</span>
+                </div>
+                <div class="bg-slate-800/80 p-3 rounded-2xl border border-slate-700 flex flex-col items-center">
+                    <i class="fa-solid fa-trophy text-pink-400 text-xl mb-1"></i>
+                    <span class="text-xs text-slate-400">Điểm tối đa</span>
+                    <span class="font-bold text-slate-200">10 Điểm</span>
+                </div>
+            </div>
+
+            <button onclick="startGame()" class="glow-active px-10 py-4 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-extrabold text-xl md:text-2xl rounded-2xl shadow-lg transform transition active:scale-95 flex items-center space-x-3">
+                <i class="fa-solid fa-play"></i>
+                <span>BẮT ĐẦU LÀM BÀI</span>
+            </button>
+        </div>
+
+        <!-- ================= QUIZ PLAY SCREEN ================= -->
+        <div id="screen-quiz" class="hidden h-full flex flex-col justify-between">
+            <!-- Header Bar -->
+            <div class="flex items-center justify-between border-b border-slate-700/80 pb-3">
+                <div class="flex items-center space-x-3">
+                    <span id="badge-difficulty" class="px-3 py-1 rounded-lg text-xs font-bold uppercase bg-amber-500/20 text-amber-300 border border-amber-500/40">
+                        TRUNG BÌNH
+                    </span>
+                    <span id="question-tracker" class="text-slate-300 font-semibold text-sm md:text-base">
+                        Câu hỏi 1 / 10
+                    </span>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <div class="flex items-center space-x-2 bg-slate-800 px-3 py-1.5 rounded-xl border border-slate-700">
+                        <i class="fa-solid fa-star text-amber-400"></i>
+                        <span class="text-xs text-slate-400">Điểm:</span>
+                        <span id="current-score" class="font-bold text-emerald-400">0</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main Layout Grid (Left: Question & Options 70%, Right: Panel 30%) -->
+            <div class="grid grid-cols-12 gap-4 md:gap-6 my-auto py-2 items-stretch h-[calc(100%-80px)]">
+                
+                <!-- LEFT PANEL: Question & 2-Column Options (8 Cols) -->
+                <div class="col-span-12 lg:col-span-8 flex flex-col justify-between space-y-4">
+                    
+                    <!-- Question Text Box -->
+                    <div class="bg-slate-900/90 rounded-2xl p-4 md:p-6 border border-indigo-500/30 flex-grow flex items-center min-h-[120px]">
+                        <h2 id="question-text" class="text-xl md:text-2xl font-bold text-slate-100 leading-snug">
+                            Nội dung câu hỏi sẽ hiển thị ở đây...
+                        </h2>
+                    </div>
+
+                    <!-- 2-Column Answer Options (A, B, C, D) -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4" id="options-container">
+                        <!-- Dynamic Options generated in JS -->
+                    </div>
+
+                    <!-- Hint / Explanation Banner (Hidden until answer chosen) -->
+                    <div id="hint-box" class="hidden bg-slate-800/95 border-l-4 border-emerald-500 p-3 md:p-4 rounded-xl text-slate-200 transition-all">
+                        <div class="flex items-center space-x-2 text-emerald-400 font-bold mb-1 text-sm md:text-base">
+                            <i class="fa-solid fa-circle-info"></i>
+                            <span>GỢI Ý & GIẢI THÍCH ĐÁP ÁN ĐÚNG:</span>
+                        </div>
+                        <p id="hint-text" class="text-xs md:text-sm text-slate-300">
+                            Lời giải thích ngắn gọn sẽ xuất hiện ở đây.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- RIGHT PANEL: Timer & Question Navigation Matrix (4 Cols) -->
+                <div class="col-span-12 lg:col-span-4 bg-slate-900/80 rounded-2xl p-4 border border-slate-800 flex flex-col justify-between space-y-4">
+                    
+                    <!-- Timer Box -->
+                    <div class="flex flex-col items-center justify-center bg-slate-800/60 rounded-xl p-3 border border-slate-700/60 relative">
+                        <span class="text-xs text-slate-400 font-semibold mb-1">THỜI GIAN CÒN LẠI</span>
+                        <div class="relative flex items-center justify-center">
+                            <!-- Circular SVG Progress -->
+                            <svg class="w-20 h-20 transform -rotate-90">
+                                <circle cx="40" cy="40" r="34" stroke="#334155" stroke-width="6" fill="transparent" />
+                                <circle id="timer-circle" cx="40" cy="40" r="34" stroke="#6366f1" stroke-width="6" fill="transparent"
+                                        stroke-dasharray="213.6" stroke-dashoffset="0" stroke-linecap="round" class="transition-all duration-1000" />
+                            </svg>
+                            <span id="timer-text" class="absolute text-2xl font-black text-amber-400">30</span>
+                        </div>
+                    </div>
+
+                    <!-- Question Index Panel (Mục lục 10 câu) -->
+                    <div class="flex-grow flex flex-col justify-center">
+                        <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2 text-center">
+                            MỤC LỤC CÂU HỎI
+                        </h3>
+                        <div id="question-matrix" class="grid grid-cols-5 gap-2">
+                            <!-- 10 Question indicator badges rendered in JS -->
+                        </div>
+                    </div>
+
+                    <!-- Action Button (Next Question) -->
+                    <button id="btn-next" onclick="nextQuestion()" disabled
+                            class="w-full py-3 bg-indigo-600 hover:bg-indigo-500 disabled:opacity-40 disabled:cursor-not-allowed text-white font-bold rounded-xl shadow-md transition flex items-center justify-center space-x-2 text-base">
+                        <span>CÂU TIẾP THEO</span>
+                        <i class="fa-solid fa-arrow-right"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= RESULT SCREEN ================= -->
+        <div id="screen-result" class="hidden flex flex-col items-center justify-center h-full text-center space-y-6 my-auto">
+            <div id="result-icon-container" class="w-24 h-24 rounded-full bg-emerald-500/20 border-2 border-emerald-400 flex items-center justify-center">
+                <i id="result-icon" class="fa-solid fa-award text-5xl text-emerald-400"></i>
+            </div>
+
+            <div>
+                <h2 class="text-3xl md:text-5xl font-black text-white">HOÀN THÀNH BÀI LÀM!</h2>
+                <p id="result-feedback" class="text-slate-300 text-lg mt-2">
+                    Bạn đã thực hiện xuất sắc bài thi tìm kiếm thông tin!
+                </p>
+            </div>
+
+            <!-- Score Display Box -->
+            <div class="bg-slate-900/90 border border-slate-700 px-8 py-6 rounded-2xl flex items-center space-x-8 shadow-xl">
+                <div class="text-center">
+                    <span class="block text-xs text-slate-400 uppercase font-bold">TỔNG ĐIỂM SỐ</span>
+                    <span id="final-score" class="text-4xl md:text-6xl font-black text-amber-400">0/10</span>
+                </div>
+                <div class="h-12 w-px bg-slate-700"></div>
+                <div class="text-center">
+                    <span class="block text-xs text-slate-400 uppercase font-bold">TỈ LỆ ĐÚNG</span>
+                    <span id="final-accuracy" class="text-4xl md:text-6xl font-black text-emerald-400">0%</span>
+                </div>
+            </div>
+
+            <div class="flex items-center space-x-4">
+                <button onclick="startGame()" class="px-8 py-3.5 bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-lg rounded-xl shadow-lg transition flex items-center space-x-2">
+                    <i class="fa-solid fa-rotate-right"></i>
+                    <span>LÀM BÀI LẠI (TẠO ĐỀ MỚI)</span>
+                </button>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        /* ================= WEB AUDIO API SOUND SYSTEM ================= */
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+        function playSound(type) {
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+
+            const now = audioCtx.currentTime;
+
+            if (type === 'click') {
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(600, now);
+                gain.gain.setValueAtTime(0.1, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.05);
+                osc.start(now);
+                osc.stop(now + 0.05);
+            } else if (type === 'correct') {
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(523.25, now); // C5
+                osc.frequency.setValueAtTime(659.25, now + 0.1); // E5
+                osc.frequency.setValueAtTime(783.99, now + 0.2); // G5
+                gain.gain.setValueAtTime(0.2, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.4);
+                osc.start(now);
+                osc.stop(now + 0.4);
+            } else if (type === 'wrong') {
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(180, now);
+                osc.frequency.setValueAtTime(130, now + 0.15);
+                gain.gain.setValueAtTime(0.25, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.35);
+                osc.start(now);
+                osc.stop(now + 0.35);
+            } else if (type === 'timeout') {
+                osc.type = 'square';
+                osc.frequency.setValueAtTime(200, now);
+                gain.gain.setValueAtTime(0.2, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
+                osc.start(now);
+                osc.stop(now + 0.3);
+            } else if (type === 'finish') {
+                // Fanfare chord
+                [440, 554.37, 659.25, 880].forEach((freq, idx) => {
+                    const o = audioCtx.createOscillator();
+                    const g = audioCtx.createGain();
+                    o.type = 'sine';
+                    o.frequency.setValueAtTime(freq, now + idx * 0.08);
+                    g.gain.setValueAtTime(0.15, now + idx * 0.08);
+                    g.gain.exponentialRampToValueAtTime(0.001, now + 0.6);
+                    o.connect(g);
+                    g.connect(audioCtx.destination);
+                    o.start(now + idx * 0.08);
+                    o.stop(now + 0.6);
+                });
+            }
+        }
+
+        /* ================= 100 QUESTION BANK (BÀI 3 TIN HỌC) ================= */
+        // 70 Medium (m), 30 Hard (h)
+        const rawQuestionBank = [
+            // --- TRUNG BÌNH (Medium) - 70 câu ---
+            {
+                q: "Để giải quyết một vấn đề, trước tiên em cần làm gì?",
+                options: ["Đưa ra quyết định dựa trên thông tin", "Hỏi bạn làm hộ", "Không làm gì cả", "Đợi giáo viên cho đáp án"],
+                answer: 0,
+                hint: "Để giải quyết vấn đề em cần đưa ra quyết định dựa trên thông tin thu thập được.",
+                type: "medium"
+            },
+            {
+                q: "Để đưa ra quyết định đúng đắn, em cần phải có yếu tố nào?",
+                options: ["Thông tin", "Sự may mắn", "Máy tính đắt tiền", "Thật nhiều tiền"],
+                answer: 0,
+                hint: "Để có được quyết định chính xác thì cần phải có đầy đủ thông tin.",
+                type: "medium"
+            },
+            {
+                q: "Trong bài học, An đi nghỉ hè ở địa điểm nào?",
+                options: ["Nha Trang", "Đà Lạt", "Úc", "Sa Pa"],
+                answer: 0,
+                hint: "An được bố mẹ cho đi nghỉ hè ở thành phố biển Nha Trang.",
+                type: "medium"
+            },
+            {
+                q: "Trong bài học, Khoa được bố mẹ cho đi nghỉ hè ở đâu?",
+                options: ["Đà Lạt", "Nha Trang", "Úc", "Hà Nội"],
+                answer: 0,
+                hint: "Khoa đi nghỉ hè ở Đà Lạt - thành phố cao nguyên mát mẻ.",
+                type: "medium"
+            },
+            {
+                q: "Trong bài học, bạn Minh đi thăm họ hàng ở quốc gia nào?",
+                options: ["Úc (Australia)", "Mỹ", "Nhật Bản", "Thái Lan"],
+                answer: 0,
+                hint: "Minh được đi thăm họ hàng ở Úc trong kì nghỉ hè.",
+                type: "medium"
+            },
+            {
+                q: "Đặc điểm thời tiết quanh năm ở Nha Trang là gì?",
+                options: ["Nắng nóng", "Có tuyết rơi", "Rất lạnh giá", "Mùa đông kéo dài"],
+                answer: 0,
+                hint: "Nha Trang là thành phố biển với thời tiết quanh năm nắng nóng.",
+                type: "medium"
+            },
+            {
+                q: "Khoa gặp khó khăn gì khi đến Đà Lạt do không tìm hiểu thông tin thời tiết?",
+                options: ["Thiếu quần áo ấm khi tối và đêm khá lạnh", "Không có đồ bơi", "Thiếu kính râm", "Không mang theo kem chống nắng"],
+                answer: 0,
+                hint: "Đà Lạt tối và đêm khá lạnh, Khoa chỉ mang quần áo mùa hè nên thiếu áo ấm.",
+                type: "medium"
+            },
+            {
+                q: "Vì sao Minh sang Úc vào mùa hè ở Việt Nam nhưng lại gặp thời tiết mùa đông?",
+                options: ["Úc nằm ở Nam bán cầu nên trái ngược mùa", "Úc bị băng tuyết bao phủ quanh năm", "Minh đi nhầm thời gian", "Thời tiết ở Úc thay đổi theo giờ"],
+                answer: 0,
+                hint: "Úc nằm ở Nam bán cầu, khi Việt Nam là mùa hè thì ở Úc đang là mùa đông.",
+                type: "medium"
+            },
+            {
+                q: "Hành động nào giải thích lý do kì nghỉ của An thành công?",
+                options: ["Tìm hiểu thông tin thời tiết Nha Trang trước khi đi", "Chỉ mang theo áo len", "Không chuẩn bị đồ dùng gì", "Đi du lịch một mình"],
+                answer: 0,
+                hint: "An tìm thông tin trước nên biết Nha Trang nắng nóng để chuẩn bị đồ phù hợp.",
+                type: "medium"
+            },
+            {
+                q: "Khi thiếu thông tin liên quan đến vấn đề, em sẽ gặp tình trạng gì?",
+                options: ["Gặp khó khăn trong giải quyết vấn đề", "Giải quyết vấn đề nhanh hơn", "Không cần đưa ra quyết định", "Luôn thành công dễ dàng"],
+                answer: 0,
+                hint: "Thiếu thông tin sẽ khiến em gặp khó khăn trong việc giải quyết vấn đề.",
+                type: "medium"
+            },
+            {
+                q: "Có đầy đủ thông tin mang lại lợi ích gì?",
+                options: ["Giúp giải quyết vấn đề tốt hơn", "Làm công việc phức tạp hơn", "Mất nhiều thời gian hơn", "Không mang lại lợi ích gì"],
+                answer: 0,
+                hint: "Có đầy đủ thông tin giúp em đưa ra quyết định đúng và giải quyết vấn đề tốt hơn.",
+                type: "medium"
+            },
+            {
+                q: "Chuẩn bị đi tham quan với lớp, em CẦN thu thập thông tin nào sau đây?",
+                options: ["Vị trí, dự báo thời tiết và chương trình tham quan", "Giá xe hơi đắt nhất", "Tên tất cả các loài chim trên thế giới", "Lịch sử điện ảnh thế giới"],
+                answer: 0,
+                hint: "Cần tìm hiểu vị trí, thời tiết, chương trình chuyến đi và kinh nghiệm người đi trước.",
+                type: "medium"
+            },
+            {
+                q: "Cách phân công công việc nhóm hợp lý nhất là gì?",
+                options: ["Dựa vào điểm mạnh của từng người", "Bốc thăm ngẫu nhiên", "Để bạn trưởng nhóm làm hết", "Ai xung phong làm bài nào làm bài đó"],
+                answer: 0,
+                hint: "Khi làm việc nhóm, cần thảo luận và phân công công việc dựa trên điểm mạnh mỗi người.",
+                type: "medium"
+            },
+            {
+                q: "Khi làm việc nhóm, tinh thần nào sau đây là quan trọng nhất?",
+                options: ["Có ý thức, tinh thần trách nhiệm và hợp tác", "Ỷ 赖 vào bạn học giỏi", "Làm việc riêng trong giờ thảo luận", "Đổ lỗi cho người khác"],
+                answer: 0,
+                hint: "Mỗi thành viên cần có tinh thần trách nhiệm, hợp tác và giúp đỡ lẫn nhau.",
+                type: "medium"
+            },
+            {
+                q: "Phương án nào KHÔNG ĐÚNG khi làm việc nhóm tạo bài trình chiếu?",
+                options: ["Một bạn làm hộ hết cho cả nhóm", "Chia nhỏ công việc cho các bạn", "Mỗi bạn tự chuẩn bị nội dung phân công", "Hỗ trợ nhau chỉnh sửa bài"],
+                answer: 0,
+                hint: "Không nên để một bạn làm hộ cả nhóm vì sẽ không thể hiện tinh thần hợp tác.",
+                type: "medium"
+            },
+            {
+                q: "Trong bài học, công việc của Khoa trong nhóm làm bài trình chiếu là gì?",
+                options: ["Ghép các trang chiếu để hoàn thành bài", "Chỉnh sửa hình ảnh", "Chỉnh sửa văn bản", "Đại diện nhóm đi chơi"],
+                answer: 0,
+                hint: "Khoa có nhiệm vụ ghép các trang chiếu của các bạn lại để hoàn thành bài trình chiếu.",
+                type: "medium"
+            },
+            {
+                q: "Trong bài học, bạn An hỗ trợ nhóm làm bài trình chiếu ở công việc gì?",
+                options: ["Chỉnh sửa văn bản", "Chỉnh sửa hình ảnh", "Ghép các trang chiếu", "Vẽ tranh minh họa"],
+                answer: 0,
+                hint: "An giúp các bạn trong nhóm chỉnh sửa văn bản cho chuẩn xác.",
+                type: "medium"
+            },
+            {
+                q: "Bạn Minh giúp nhóm thực hiện công đoạn nào trong bài trình chiếu?",
+                options: ["Chỉnh sửa hình ảnh cho đẹp hơn", "Soạn thảo văn bản", "Thuyết trình trước lớp", "Quay video minh họa"],
+                answer: 0,
+                hint: "Minh hỗ trợ chỉnh sửa hình ảnh cho bài trình chiếu đẹp mắt hơn.",
+                type: "medium"
+            },
+            {
+                q: "Công cụ phổ biến nhất hiện nay để tìm kiếm thông tin nhanh chóng là gì?",
+                options: ["Internet (Máy tìm kiếm)", "Sách giáo khoa cũ", "Hỏi người lạ trên đường", "Từ điển giấy"],
+                answer: 0,
+                hint: "Internet là nguồn tìm kiếm thông tin phong phú và nhanh chóng nhất hiện nay.",
+                type: "medium"
+            },
+            {
+                q: "Website nào là công cụ tìm kiếm thông tin phổ biến được nêu trong bài?",
+                options: ["google.com", "facebook.com", "youtube.com", "zalo.me"],
+                answer: 0,
+                hint: "Google (google.com) là máy tìm kiếm phổ biến được hướng dẫn trong bài học.",
+                type: "medium"
+            },
+            {
+                q: "Khi nhập từ khóa tìm kiếm trên Google, kết quả hiển thị ra sao?",
+                options: ["Các thông tin phù hợp nhất được xếp ở đầu", "Kết quả xếp ngẫu nhiên", "Kết quả sai xếp ở đầu", "Chỉ hiển thị hình ảnh"],
+                answer: 0,
+                hint: "Các thông tin phù hợp nhất với từ khóa thường được máy tìm kiếm xếp ở đầu danh sách.",
+                type: "medium"
+            },
+            {
+                q: "Địa chỉ trang web của Sở Du lịch Hà Nội được nhắc tới trong bài là gì?",
+                options: ["sodulich.hanoi.gov.vn", "dulichhanoi.com", "hanoitourism.vn", "dulich.gov.vn"],
+                answer: 0,
+                hint: "Địa chỉ website chính thức của Sở Du lịch Hà Nội là sodulich.hanoi.gov.vn.",
+                type: "medium"
+            },
+            {
+                q: "Địa điểm du lịch nổi tiếng Sa Pa thuộc tỉnh nào ở Việt Nam?",
+                options: ["Lào Cai", "Hà Giang", "Yên Bái", "Lạng Sơn"],
+                answer: 0,
+                hint: "Sa Pa là thành phố du lịch thuộc tỉnh Lào Cai.",
+                type: "medium"
+            },
+            {
+                q: "Địa điểm nào sau đây ở Sa Pa nằm ngay gần trung tâm?",
+                options: ["Nhà thờ đá Sa Pa", "Đỉnh Phan Xi Păng", "Đèo Ô Quy Hồ", "Cầu Mây"],
+                answer: 0,
+                hint: "Nhà thờ đá, Hồ Sa Pa, Chợ đêm là các điểm tham quan ở gần trung tâm.",
+                type: "medium"
+            },
+            {
+                q: "Nhiệm vụ 1 trong bài học yêu cầu tìm thông tin du lịch ở địa điểm nào?",
+                options: ["Sa Pa", "Nha Trang", "Đà Lạt", "Hà Nội"],
+                answer: 0,
+                hint: "Nhiệm vụ 1 yêu cầu tìm thông tin các điểm tham quan ở Sa Pa cho chuyến du lịch gia đình.",
+                type: "medium"
+            },
+            {
+                q: "Các điểm tham quan phải trèo đèo, lội suối ở Sa Pa đòi hỏi điều gì?",
+                options: ["Sức khỏe tốt và thể lực", "Không cần mang giày", "Chỉ dành cho người già", "Đi bằng xe buýt điện"],
+                answer: 0,
+                hint: "Các địa điểm vất vả trèo đèo lội suối đòi hỏi thành viên phải có sức khỏe tốt.",
+                type: "medium"
+            },
+            {
+                q: "Nếu đoàn du lịch có nhiều người già và trẻ em, nên chọn điểm tham quan thế nào?",
+                options: ["Điểm tham quan ở gần, đường đi dễ dàng", "Địa điểm trèo đèo lội suối hiểm trở", "Điểm tham quan rất xa trung tâm", "Đỉnh núi cao nhất"],
+                answer: 0,
+                hint: "Gia đình có người già, trẻ em không nên chọn điểm ở xa hay đường đi vất vả.",
+                type: "medium"
+            },
+            {
+                q: "Nguồn thông tin nào KHÔNG được đề cập để thu thập dữ liệu trong bài?",
+                options: ["Tin đồn không rõ nguồn gốc", "Tivi", "Sách báo", "Internet"],
+                answer: 0,
+                hint: "Thông tin nên thu thập từ Tivi, sách báo, người xung quanh và Internet uy tín.",
+                type: "medium"
+            },
+            {
+                q: "Để tìm thông tin mua bộ truyện tặng sinh nhật, em có thể làm gì?",
+                options: ["Tìm kiếm trên Internet về giá tiền và nơi bán", "Chờ người khác mang đến tặng", "Nhắm mắt đoán giá", "Không cần tìm hiểu"],
+                answer: 0,
+                hint: "Có thể truy cập Internet để tìm thông tin truyện hay, giá tiền và nơi bán phù hợp.",
+                type: "medium"
+            },
+            {
+                q: "Chọn phát biểu ĐÚNG nhất về vai trò của thông tin trong giải quyết vấn đề:",
+                options: ["Có đủ thông tin giúp đưa ra quyết định chính xác hơn", "Thông tin không ảnh hưởng đến quyết định", "Càng ít thông tin càng dễ làm việc", "Thông tin chỉ cần thiết khi học toán"],
+                answer: 0,
+                hint: "Thông tin đầy đủ và chính xác là cơ sở cốt lõi để đưa ra quyết định đúng.",
+                type: "medium"
+            },
+            // Generative medium questions to hit target (31 to 70)
+            {
+                q: "Đỉnh núi nào cao nhất ở Sa Pa được nhắc đến trong bài học?",
+                options: ["Phan Xi Păng", "Mẫu Sơn", "Yên Tử", "Bạch Mộc Lương Tử"],
+                answer: 0,
+                hint: "Đỉnh Phan Xi Păng là điểm thu hút khách du lịch nổi tiếng tại Sa Pa.",
+                type: "medium"
+            },
+            {
+                q: "Thắng cảnh đèo nổi tiếng nào tại Sa Pa xuất hiện trong kết quả tìm kiếm?",
+                options: ["Đèo Ô Quy Hồ", "Đèo Mã Pí Lèng", "Đèo Hải Vân", "Đèo Cả"],
+                answer: 0,
+                hint: "Đèo Ô Quy Hồ nằm trong danh sách các thắng cảnh hàng đầu ở Sa Pa.",
+                type: "medium"
+            },
+            {
+                q: "Khi tìm kiếm từ khóa 'Các điểm tham quan ở Sa Pa', thông tin nào hiện ra?",
+                options: ["Danh sách các danh lam thắng cảnh và bản làng", "Lịch trình chuyến bay quốc tế", "Giá vàng thế giới", "Kết quả bóng đá ngoại hạng"],
+                answer: 0,
+                hint: "Kết quả sẽ liên quan trực tiếp đến các địa điểm du lịch tại Sa Pa.",
+                type: "medium"
+            },
+            {
+                q: "Thực hiện bước nào ĐẦU TIÊN khi tìm kiếm thông tin trên Internet?",
+                options: ["Mở máy tìm kiếm và gõ từ khóa", "Nhấp đại vào một trang web", "Mắt nhắm lại suy nghĩ", "Tắt máy tính đi ngủ"],
+                answer: 0,
+                hint: "Bước 1 là truy cập máy tìm kiếm (như Google) và nhập từ khóa cần tìm.",
+                type: "medium"
+            },
+            {
+                q: "Sau khi danh sách kết quả tìm kiếm hiện ra, em cần làm gì?",
+                options: ["Nháy chuột vào trang phù hợp để đọc và thu thập thông tin", "Tắt trang web ngay lập tức", "Nhập lại từ khóa 100 lần", "Chỉ nhìn hình ảnh không đọc chữ"],
+                answer: 0,
+                hint: "Bước 2 là nháy chuột vào các trang web chứa thông tin liên quan để đọc và lựa chọn.",
+                type: "medium"
+            },
+            {
+                q: "Trong các điểm du lịch Sa Pa, nơi nào phù hợp để chụp ảnh cảnh đẹp cảnh ruộng bậc thang?",
+                options: ["Thung lũng, bản làng có ruộng bậc thang", "Trong nhà thờ đá đóng kín cửa", "Trong siêu thị", "Ở bãi đỗ xe"],
+                answer: 0,
+                hint: "Ruộng bậc thang ở các bản làng Sa Pa là địa điểm chụp ảnh rất đẹp.",
+                type: "medium"
+            },
+            {
+                q: "Việc lựa chọn địa điểm du lịch phụ thuộc vào yếu tố nào của chuyến đi?",
+                options: ["Số ngày, thành phần tham gia và nhu cầu chung", "Màu sắc trang phục của hướng dẫn viên", "Tên của tài xế xe khách", "Nhãn hiệu điện thoại đang dùng"],
+                answer: 0,
+                hint: "Cần căn cứ vào số ngày đi, độ tuổi thành viên và nhu cầu của cả đoàn.",
+                type: "medium"
+            },
+            {
+                q: "Khi làm bài trình chiếu nhóm, việc mỗi người làm 3 trang chiếu thể hiện điều gì?",
+                options: ["Sự phân công công việc cụ thể, công bằng", "Sự đùn đẩy trách nhiệm", "Sự tranh giành công việc", "Sự mất đoàn kết"],
+                answer: 0,
+                hint: "Phân chia số trang chiếu cụ thể giúp mỗi người nắm rõ trách nhiệm của mình.",
+                type: "medium"
+            },
+            {
+                q: "Tại sao không nên chọn phương án 'Mỗi bạn làm 1 bài rồi chọn bài hay nhất'?",
+                options: ["Lãng phí công sức và không thể hiện sự hợp tác", "Rất nhanh chóng", "Tất cả các bạn đều vui", "Cô giáo sẽ khen thưởng"],
+                answer: 0,
+                hint: "Làm riêng lẻ gây lãng phí thời gian và thiếu tinh thần làm việc nhóm.",
+                type: "medium"
+            },
+            {
+                q: "Khi hợp tác giải quyết vấn đề, nếu bạn trong nhóm gặp khó khăn em nên làm gì?",
+                options: ["Hợp tác và giúp đỡ bạn hoàn thành", "Cười chê bạn", "Báo cô giáo phạt bạn", "Bỏ mặc không quan tâm"],
+                answer: 0,
+                hint: "Các thành viên trong nhóm cần có tinh thần hợp tác và sẵn sàng giúp đỡ lẫn nhau.",
+                type: "medium"
+            },
+            {
+                q: "Tên bài 3 trong sách giáo khoa Tin học Chủ đề 3 là gì?",
+                options: ["Tìm kiếm thông tin trong giải quyết vấn đề", "Lưu trữ dữ liệu trên đám mây", "Tập gõ bàn phím nhanh", "Sử dụng phần mềm vẽ"],
+                answer: 0,
+                hint: "Tên Bài 3 là: 'Tìm kiếm thông tin trong giải quyết vấn đề'.",
+                type: "medium"
+            },
+            {
+                q: "Hình ảnh An tung tăng chạy trên bãi biển nắng vàng minh họa cho chuyến đi nào?",
+                options: ["Chuyến đi Nha Trang", "Chuyến đi Đà Lạt", "Chuyến đi Úc", "Chuyến đi Sa Pa"],
+                answer: 0,
+                hint: "Hình 15 trong sách minh họa kì nghỉ biển ngập nắng của An tại Nha Trang.",
+                type: "medium"
+            },
+            {
+                q: "Hình ảnh Minh ngồi trong nhà nhìn ra ngoài trời đầy tuyết trắng minh họa điều gì?",
+                options: ["Úc đang là mùa đông lạnh giá", "Úc đang là mùa hè oi nóng", "Minh đang ở Nha Trang", "Thời tiết ở Đà Lạt có tuyết rơi"],
+                answer: 0,
+                hint: "Hình 16 minh họa Minh ở Úc ngắm tuyết rơi vì Úc đang là mùa đông.",
+                type: "medium"
+            },
+            {
+                q: "Yếu tố nào giúp Khoa giải quyết bài trình chiếu tốt hơn cùng nhóm?",
+                options: ["Ghép các trang chiếu của cả nhóm lại", "Tự làm lại từ đầu một mình", "Chờ An và Minh làm xong rồi chép", "Không tham gia vào nhóm"],
+                answer: 0,
+                hint: "Khoa đóng góp bằng việc ghép các trang chiếu thành bài hoàn chỉnh.",
+                type: "medium"
+            },
+            {
+                q: "Trước khi mua bộ truyện tranh tặng sinh nhật, ghi lại thông tin vào đâu trên máy tính?",
+                options: ["Ghi vào một tệp văn bản (file text/word)", "Vẽ lên màn hình máy tính", "Dán giấy nhớ lên bàn phím", "Không cần lưu trữ"],
+                answer: 0,
+                hint: "Nên lưu lại thông tin tìm được vào một tệp văn bản trên máy tính.",
+                type: "medium"
+            },
+            {
+                q: "Nguồn thông tin chính thức nào đáng tin cậy khi tìm hiểu du lịch một thành phố?",
+                options: ["Website chính thức của Sở Du lịch hoặc Thành phố", "Các diễn đàn chát vô danh", "Quảng cáo tin nhắn rác", "Trang cá nhân không rõ chủ"],
+                answer: 0,
+                hint: "Nên tìm kiếm ở các website chính thức của tỉnh/thành phố để có thông tin chuẩn xác.",
+                type: "medium"
+            },
+            {
+                q: "Từ khóa tìm kiếm hiệu quả cần có đặc điểm gì?",
+                options: ["Ngắn gọn, chứa nội dung chính cần tìm", "Dài như một văn bản", "Chứa các từ không liên quan", "Viết hoa toàn bộ không dấu"],
+                answer: 0,
+                hint: "Từ khóa nên cô đọng, thể hiện chính xác chủ đề cần tìm kiếm.",
+                type: "medium"
+            },
+            {
+                q: "Tại sao An lại mang kem chống nắng, kính bơi, đồ bơi khi đi Nha Trang?",
+                options: ["Vì An đã tìm hiểu trước thông tin Nha Trang nắng nóng", "Vì An đoán đại", "Vì bố mẹ ép mang", "Vì An thích xếp đồ"],
+                answer: 0,
+                hint: "An đã tìm hiểu thông tin thời tiết biển Nha Trang nên chuẩn bị đồ rất phù hợp.",
+                type: "medium"
+            },
+            {
+                q: "Hành động nào của Khoa và Minh dẫn đến kì nghỉ không thành công như mong đợi?",
+                options: ["Không tìm hiểu thông tin thời tiết trước khi đi", "Mang quá nhiều áo ấm", "Đi du lịch quá nhiều ngày", "Hỏi ý kiến cha mẹ"],
+                answer: 0,
+                hint: "Cả Khoa và Minh đều không tìm hiểu thông tin thời tiết nơi mình sẽ đến.",
+                type: "medium"
+            },
+            {
+                q: "Tìm kiếm thông tin giúp chúng ta tránh được điều gì khi giải quyết vấn đề?",
+                options: ["Tránh đưa ra quyết định sai lầm", "Tránh việc học tập tốt", "Tránh giao tiếp với bạn bè", "Tránh sử dụng máy tính"],
+                answer: 0,
+                hint: "Thu thập thông tin đầy đủ giúp ta tránh được những quyết định thiếu chính xác.",
+                type: "medium"
+            },
+            {
+                q: "Để biết giá tiền của bộ sách truyện thiếu nhi, em tìm kiếm bằng cách nào?",
+                options: ["Gõ tên bộ truyện kèm từ khóa 'giá tiền' hoặc 'nơi bán'", "Chỉ gõ từ 'truyện'", "Gõ từ 'sách đẹp'", "Gõ tên trường học của em"],
+                answer: 0,
+                hint: "Kết hợp tên bộ truyện và từ khóa 'giá tiền' sẽ cho kết quả chính xác.",
+                type: "medium"
+            },
+            {
+                q: "Bản Cát Cát, Bản Tả Phìn thuộc địa điểm du lịch nổi tiếng nào?",
+                options: ["Sa Pa", "Hạ Long", "Đà Nẵng", "Phú Quốc"],
+                answer: 0,
+                hint: "Bản Cát Cát, Bản Tả Phìn là những bản làng nổi tiếng ở Sa Pa.",
+                type: "medium"
+            },
+            {
+                q: "Trong kết quả tìm kiếm Google ở Hình 17 (trang 17), khoảng bao nhiêu kết quả hiện ra?",
+                options: ["Khoảng 5.030.000 kết quả", "Khoảng 100 kết quả", "Chỉ 1 kết quả", "Không có kết quả nào"],
+                answer: 0,
+                hint: "Google trả về khoảng 5.030.000 kết quả trong 0,54 giây.",
+                type: "medium"
+            },
+            {
+                q: "Khi làm việc nhóm, nếu ai cũng đùn đẩy công việc thì kết quả sẽ ra sao?",
+                options: ["Bài làm thất bại hoặc không hoàn thành", "Bài làm sẽ rất hoàn hảo", "Được cô giáo tuyên dương", "Bài làm tự hoàn thành"],
+                answer: 0,
+                hint: "Thiếu ý thức trách nhiệm sẽ khiến công việc nhóm thất bại.",
+                type: "medium"
+            },
+            {
+                q: "Kinh nghiệm rút ra từ bài học khi chuẩn bị đi du lịch là gì?",
+                options: ["Thu thập thông tin thời tiết, địa điểm trước chuyến đi", "Cứ xếp đại đồ mùa hè vào vali", "Không cần hỏi người lớn", "Đến nơi mới mua mọi thứ"],
+                answer: 0,
+                hint: "Luôn chủ động thu thập thông tin về địa điểm và thời tiết trước chuyến đi.",
+                type: "medium"
+            },
+            {
+                q: "Nhà thờ Đá Sa Pa là công trình kiến trúc thuộc tôn giáo nào?",
+                options: ["Công giáo", "Phật giáo", "Hồi giáo", "Ấn Độ giáo"],
+                answer: 0,
+                hint: "Nhà thờ Đá Sa Pa là nhà thờ Công giáo nổi tiếng tại trung tâm thị trấn.",
+                type: "medium"
+            },
+            {
+                q: "Địa chỉ website chính thức của cơ quan nhà nước ở Việt Nam thường có đuôi gì?",
+                options: [".gov.vn", ".com", ".net", ".org"],
+                answer: 0,
+                hint: "Các trang web của cơ quan quản lý nhà nước Việt Nam có đuôi tên miền .gov.vn.",
+                type: "medium"
+            },
+            {
+                q: "Thời gian đếm ngược cho mỗi câu hỏi trong trò chơi này là bao nhiêu giây?",
+                options: ["30 giây", "10 giây", "60 giây", "5 giây"],
+                answer: 0,
+                hint: "Mỗi câu hỏi có đúng 30 giây đếm ngược để người chơi lựa chọn.",
+                type: "medium"
+            },
+            {
+                q: "Trắc nghiệm này quy định mỗi câu trả lời đúng được mấy điểm?",
+                options: ["1 điểm", "2 điểm", "5 điểm", "10 điểm"],
+                answer: 0,
+                hint: "Mỗi câu trả lời chính xác được tính 1 điểm (tổng điểm tối đa là 10).",
+                type: "medium"
+            },
+            {
+                q: "Phương án sai khi nói về vai trò của thông tin trong Bài Luyện tập 1 là gì?",
+                options: ["'Thông tin không có vai trò gì trong giải quyết vấn đề'", "'Để giải quyết vấn đề cần đưa ra quyết định'", "'Để có quyết định cần có thông tin'", "'Tìm kiếm thông tin rất quan trọng'"],
+                answer: 0,
+                hint: "Phát biểu 'Thông tin không có vai trò gì' là sai hoàn toàn.",
+                type: "medium"
+            },
+            {
+                q: "Để tìm danh sách các địa điểm tham quan ở Hà Nội, em truy cập trang nào?",
+                options: ["sodulich.hanoi.gov.vn", "google.com.vn", "youtube.com", "wikipedia.org"],
+                answer: 0,
+                hint: "Trang web của Sở Du lịch Hà Nội (sodulich.hanoi.gov.vn) cung cấp danh sách chính thức.",
+                type: "medium"
+            },
+            {
+                q: "Thông tin thu thập được cần có đặc điểm gì đối với vấn đề cần giải quyết?",
+                options: ["Phù hợp và chính xác", "Càng dài càng tốt", "Không liên quan gì", "Phải viết bằng tiếng Anh"],
+                answer: 0,
+                hint: "Thông tin thu thập phải phù hợp và chính xác với vấn đề đang quan tâm.",
+                type: "medium"
+            },
+            {
+                q: "Ý nghĩa của việc hợp tác trong giải quyết vấn đề là gì?",
+                options: ["Giúp hoàn thành công việc nhanh chóng và hiệu quả hơn", "Để có cớ đi chơi cùng nhau", "Để đổ lỗi khi bài bị điểm kém", "Để bớt phải suy nghĩ"],
+                answer: 0,
+                hint: "Hợp tác giúp phát huy điểm mạnh từng người, hoàn thành công việc hiệu quả.",
+                type: "medium"
+            },
+            {
+                q: "Làm thế nào để biết thông tin trên mạng có đáng tin cậy hay không?",
+                options: ["Kiểm tra nguồn từ các trang web chính thức, uy tín", "Chỉ nhìn xem trang đó có đẹp không", "Tin vào bất kỳ trang nào hiện đầu tiên", "Nghe theo lời đồn trên mạng xã hội"],
+                answer: 0,
+                hint: "Nên ưu tiên thông tin từ các cơ quan, tổ chức hoặc website chính thức.",
+                type: "medium"
+            },
+            {
+                q: "Khi nhận công việc nhóm, thái độ đúng đắn của em là gì?",
+                options: ["Nhiệt tình, có trách nhiệm hoàn thành đúng hạn", "Chờ bạn nhắc mới làm", "Làm qua loa cho xong", "Nhờ người thân làm giúp"],
+                answer: 0,
+                hint: "Cần có tinh thần tự giác và trách nhiệm đối với phần việc được giao.",
+                type: "medium"
+            },
+            {
+                q: "Nếu không tìm hiểu kĩ, chuyến đi Sa Pa vào dịp Tết Dương lịch có thể gặp thời tiết gì?",
+                options: ["Rất lạnh, có thể có băng giá", "Nắng nóng ngột ngạt", "Bão cát mùa hè", "Mưa rào nhiệt đới kéo dài"],
+                answer: 0,
+                hint: "Sa Pa vào dịp Tết Dương lịch (tháng 1) thuộc mùa đông nên rất lạnh.",
+                type: "medium"
+            },
+            {
+                q: "Chức năng của máy tìm kiếm trên Internet là gì?",
+                options: ["Giúp người dùng tìm kiếm thông tin theo từ khóa", "Tự động làm bài tập về nhà", "Sửa chữa máy tính bị hỏng", "Chơi game trực tuyến"],
+                answer: 0,
+                hint: "Máy tìm kiếm giúp tra cứu và trả về danh sách các trang web chứa thông tin theo từ khóa.",
+                type: "medium"
+            },
+            {
+                q: "Việc so sánh kết quả giữa các trang web giúp em điều gì?",
+                options: ["Chọn lọc được thông tin chính xác nhất", "Tốn thời gian không cần thiết", "Làm máy tính chạy chậm", "Xóa mất dữ liệu"],
+                answer: 0,
+                hint: "Đối chiếu thông tin từ nhiều nguồn giúp ta chọn lọc được dữ liệu tin cậy.",
+                type: "medium"
+            },
+            {
+                q: "Phương án nào là một ví dụ về từ khóa tìm kiếm tốt?",
+                options: ["'Địa điểm tham quan Sa Pa'", "'Tôi muốn đi chơi ở Sa Pa với gia đình vào tuần sau'", "'Sa Pa'", "'Đi chơi'"],
+                answer: 0,
+                hint: "'Địa điểm tham quan Sa Pa' là từ khóa đầy đủ ý và không quá dài.",
+                type: "medium"
+            },
+            {
+                q: "Tại sao nên lưu thông tin tìm được vào tệp trên máy tính?",
+                options: ["Để dễ dàng xem lại và sử dụng khi cần", "Để làm đầy ổ cứng", "Để trang web không bị mất", "Vì máy tính bắt buộc phải lưu"],
+                answer: 0,
+                hint: "Lưu dữ liệu vào tệp giúp quản lý, xem lại và chỉnh sửa thuận tiện.",
+                type: "medium"
+            },
+
+            // --- KHÓ (Hard) - 30 câu ---
+            {
+                q: "Tại sao cùng là kỳ nghỉ hè nhưng Khoa (Đà Lạt) và Minh (Úc) lại có kết quả không thành công giống nhau?",
+                options: ["Đều thiếu bước tìm kiếm thông tin thời tiết địa bàn sắp đến", "Đều mang quá nhiều áo ấm", "Đều bị mất vali đồ đạc", "Đều không mang theo máy tính"],
+                answer: 0,
+                hint: "Cả hai bạn đều chủ quan không tìm hiểu thông tin thời tiết nơi mình đến nên chuẩn bị sai trang phục.",
+                type: "hard"
+            },
+            {
+                q: "Sự khác biệt cốt lõi giữa việc 'Làm việc nhóm đúng nghĩa' và 'Một bạn làm hộ cả nhóm' là gì?",
+                options: ["Sự đóng góp trí tuệ, trách nhiệm và sự hợp tác từ tất cả thành viên", "Số lượng máy tính được sử dụng", "Bài trình chiếu có nhiều trang hơn", "Thời gian hoàn thành chậm hơn"],
+                answer: 0,
+                hint: "Làm việc nhóm đòi hỏi sự thảo luận, phân công theo thế mạnh và tinh thần trách nhiệm chung.",
+                type: "hard"
+            },
+            {
+                q: "Giả sử nhóm em cần chọn điểm du lịch Sa Pa cho đoàn gồm cụ già 80 tuổi và em bé 2 tuổi. Quyết định nào sau đây là TỐI ƯU nhất dựa trên thông tin thu thập?",
+                options: ["Chọn các điểm ở gần trung tâm như Nhà thờ đá, Hồ Sa Pa", "Tổ chức leo đỉnh Phan Xi Păng bằng đường bộ", "Đi phượt đèo Ô Quy Hồ bằng xe máy", "Đi bộ xuyên rừng thung lũng Mường Hoa"],
+                answer: 0,
+                hint: "Cần căn cứ đặc điểm sức khỏe thành viên (người già, trẻ nhỏ) để chọn nơi di chuyển nhẹ nhàng, an toàn.",
+                type: "hard"
+            },
+            {
+                q: "Phân tích quy trình tìm kiếm thông tin chuẩn để giải quyết vấn đề thành công:",
+                options: ["Xác định nhu cầu thông tin -> Tìm kiếm/Thu thập -> Lựa chọn/Đánh giá -> Đưa ra quyết định", "Đưa ra quyết định -> Mới đi tìm thông tin -> Bỏ qua thông tin sai", "Tìm đại trên mạng -> Áp dụng ngay không cần chọn lọc", "Hỏi bạn bè -> Đợi người khác quyết định thay"],
+                answer: 0,
+                hint: "Quy trình chuẩn gồm: Xác định vấn đề -> Thu thập thông tin -> Lọc chọn thông tin phù hợp -> Đưa ra quyết định.",
+                type: "hard"
+            },
+            {
+                q: "Nếu gõ từ khóa quá rộng như 'Du lịch' vào máy tìm kiếm, em sẽ gặp khó khăn gì?",
+                options: ["Nhận được quá nhiều kết quả không tập trung vào nhu cầu", "Máy tính sẽ bị khóa", "Không hiện ra kết quả nào", "Máy tìm kiếm sẽ báo lỗi"],
+                answer: 0,
+                hint: "Từ khóa quá rộng trả về hàng triệu kết quả loãng, gây mất thời gian lọc thông tin.",
+                type: "hard"
+            },
+            {
+                q: "Tại sao việc phân công An (chỉnh văn bản), Minh (chỉnh ảnh), Khoa (ghép slide) lại thể hiện sự hợp tác hiệu quả?",
+                options: ["Vì phân công dựa đúng vào điểm mạnh riêng của từng người", "Vì Khoa là bạn học giỏi nhất nhóm", "Vì An không biết chỉnh sửa hình ảnh", "Vì công việc ghép slide là khó nhất"],
+                answer: 0,
+                hint: "Phân công dựa vào thế mạnh giúp tối ưu hóa chất lượng sản phẩm và tạo sự đồng thuận cao.",
+                type: "hard"
+            },
+            {
+                q: "Khi truy cập Internet để tìm thông tin mua sách giá tốt, hành động nào thể hiện kỹ năng tìm kiếm thông tin thông minh?",
+                options: ["So sánh giá tiền và độ uy tín của nhiều trang bán sách khác nhau", "Chọn ngay trang web đầu tiên có quảng cáo nhấp nháy", "Mua ở trang đắt nhất vì nghĩ là tốt nhất", "Chỉ tin vào bình luận không rõ tên tác giả"],
+                answer: 0,
+                hint: "Kỹ năng thông minh là biết đối chiếu, so sánh giá cả và độ tin cậy từ nhiều nguồn.",
+                type: "hard"
+            },
+            {
+                q: "Dựa vào kiến thức bài học, tại sao Minh đi du lịch Úc vào tháng 7 lại cần mang theo áo lông vũ cực dày?",
+                options: ["Tháng 7 là mùa hè ở VN nhưng là mùa đông lạnh giá ở Úc (Nam bán cầu)", "Ở Úc quanh năm là mùa đông", "Tháng 7 là thời điểm Úc bị bão tuyết tràn qua", "Áo lông vũ mặc mùa hè ở Úc rất mát"],
+                answer: 0,
+                hint: "Do vị trí địa lý ở Nam bán cầu, thời tiết của Úc ngược hoàn toàn với Bắc bán cầu (Việt Nam).",
+                type: "hard"
+            },
+            {
+                q: "Tình huống nào sau đây cho thấy hậu quả trực tiếp của việc THIẾU THÔNG TIN khi đưa ra quyết định?",
+                options: ["Bạn Nam mua vé xem phim nhưng không xem thời gian chiếu nên bị trễ giờ", "Bạn Lan tìm đọc dự báo thời tiết và mang theo ô khi trời mưa", "Bạn Tuấn tra từ điển và viết đúng từ tiếng Anh", "Bạn Hoa xem bản đồ chỉ đường và đến đúng hẹn"],
+                answer: 0,
+                hint: "Không tra cứu giờ chiếu phim (thiếu thông tin) dẫn tới quyết định đi sai giờ và bị trễ.",
+                type: "hard"
+            },
+            {
+                q: "Trong các website sau, đâu là trang web chính thống tin cậy cao nhất khi tra cứu thông tin du lịch Hà Nội?",
+                options: ["sodulich.hanoi.gov.vn", "blog-review-dulich-giare.com", "hoi-thich-di-phuot-ha-noi.facebook.com", "diendankinhnghiem.net"],
+                answer: 0,
+                hint: "Trang có tên miền .gov.vn của Sở Du lịch Hà Nội là cơ quan nhà nước chính thức, độ tin cậy cao nhất.",
+                type: "hard"
+            },
+            {
+                q: "Đánh giá phương án: 'Mỗi bạn tự làm một bài trình chiếu hoàn chỉnh rồi chấm điểm chọn bài tốt nhất'. Tại sao phương án này KÉM HIỆU QUẢ?",
+                options: ["Vi phạm nguyên tắc làm việc nhóm, gây lãng phí thời gian trùng lặp công sức", "Vì các bạn sẽ cãi nhau", "Vì không thể chọn ra bài hay nhất", "Vì tốn dung lượng máy tính"],
+                answer: 0,
+                hint: "Cách này không có sự hợp tác, phân công chia sẻ công việc mà gây lãng phí nguồn lực.",
+                type: "hard"
+            },
+            {
+                q: "Khi gặp một thông tin mâu thuẫn giữa 2 trang web khác nhau, em nên xử lý thế nào?",
+                options: ["Tìm kiếm thêm trên các trang uy tín chính thống để đối chiếu xác thực", "Tin theo trang web nào có giao diện đẹp hơn", "Chọn trang web xuất hiện đầu tiên", "Bỏ qua không giải quyết vấn đề nữa"],
+                answer: 0,
+                hint: "Khi mâu thuẫn dữ liệu, cần đối chiếu thêm với các nguồn thông tin chính thống đáng tin cậy.",
+                type: "hard"
+            },
+            {
+                q: "Để tìm thông tin chi tiết về 'Khách sạn giá rẻ tại Sa Pa có chỗ cho trẻ em', từ khóa nào TỐI ƯU nhất?",
+                options: ["'khách sạn Sa Pa phù hợp trẻ em giá rẻ'", "'khách sạn'", "'Sa Pa chỗ ở'", "'du lịch Sa Pa có trẻ em đi cùng nên ở đâu tại khách sạn nào rẻ'"],
+                answer: 0,
+                hint: "Từ khóa tối ưu chứa đủ các thành tố chính: đối tượng (khách sạn Sa Pa), đặc điểm (phù hợp trẻ em), yêu cầu (giá rẻ).",
+                type: "hard"
+            },
+            {
+                q: "Sắp xếp lại các bước hợp tác làm việc nhóm theo đúng logic Bài 3:",
+                options: ["1.Thảo luận chia việc -> 2.Phân công theo thế mạnh -> 3.Thực hiện phần việc -> 4.Hỗ trợ nhau hoàn thiện", "1.Thực hiện tự do -> 2.Mới chia việc -> 3.Ghép bài -> 4.Thảo luận", "1.Nhờ bạn giỏi làm hết -> 2.Nộp bài", "1.Ghép bài trước -> 2.Mới đi chuẩn bị nội dung"],
+                answer: 0,
+                hint: "Quy trình chuẩn: Thảo luận -> Phân công thế mạnh -> Tự giác thực hiện -> Hợp tác hoàn thiện sản phẩm chung.",
+                type: "hard"
+            },
+            {
+                q: "Yếu tố nào thể hiện một người có TINH THẦN TRÁCH NHIỆM cao trong làm việc nhóm?",
+                options: ["Hoàn thành đúng hạn phần việc được giao và sẵn sàng hỗ trợ đồng đội", "Nhận việc thật nhiều rồi bỏ dở", "Chỉ làm phần việc dễ nhất còn việc khó đẩy cho bạn", "Chỉ làm bài khi bị đe dọa trừ điểm"],
+                answer: 0,
+                hint: "Tinh thần trách nhiệm thể hiện ở việc hoàn thành công việc đúng chất lượng, tiến độ và biết hỗ trợ bạn.",
+                type: "hard"
+            },
+            {
+                q: "Nếu em cần chuẩn bị đồ dùng cho chuyến đi tham quan rừng cúc phương vào mùa mưa, thông tin nào KHÔNG CẦN THIẾT?",
+                options: ["Danh sách các cửa hàng bán ti vi tại Hà Nội", "Dự báo thời tiết Rừng Cúc Phương ngày đi", "Trang phục chống nước, thuốc chống côn trùng", "Lịch trình di chuyển của đoàn"],
+                answer: 0,
+                hint: "Thông tin cửa hàng bán ti vi hoàn toàn không liên quan tới vấn đề chuẩn bị đi tham quan rừng.",
+                type: "hard"
+            },
+            {
+                q: "Mối quan hệ giữa 'Thông tin', 'Quyết định' và 'Giải quyết vấn đề' là gì?",
+                options: ["Thông tin là cơ sở để ra Quyết định, Quyết định đúng giúp Giải quyết vấn đề thành công", "Giải quyết vấn đề có trước rồi mới thu thập Thông tin", "Quyết định không phụ thuộc vào Thông tin", "Ba yếu tố này độc lập hoàn toàn không liên quan"],
+                answer: 0,
+                hint: "Thông tin -> Quyết định -> Giải quyết vấn đề là chuỗi quan hệ nguyên nhân - kết quả logic.",
+                type: "hard"
+            },
+            {
+                q: "Tại sao trang web xếp đầu tiên trên Google chưa chắc đã luôn là trang thông tin đúng 100%?",
+                options: ["Do có thể là quảng cáo trả phí hoặc thuật toán tối ưu từ khóa", "Vì Google luôn xếp trang sai ở đầu", "Vì trang web đầu tiên luôn bị virus", "Vì không ai kiểm duyệt Google"],
+                answer: 0,
+                hint: "Kết quả đầu tiên có thể là vị trí quảng cáo tài trợ, người dùng vẫn cần tỉnh táo đánh giá độ uy tín.",
+                type: "hard"
+            },
+            {
+                q: "Nhiệm vụ 2 trong sách yêu cầu lựa chọn điểm du lịch Sa Pa phù hợp dựa trên nguyên tắc nào?",
+                options: ["Đặc điểm chuyến đi (số ngày, thành phần đoàn, nhu cầu chung)", "Điểm nào đắt tiền nhất thì chọn", "Chọn ngẫu nhiên nhắm mắt chỉ tay", "Chỉ chọn những nơi chưa ai từng đến"],
+                answer: 0,
+                hint: "Lựa chọn dựa trên phân tích sự tương thích giữa thông tin địa điểm và đặc điểm thực tế của đoàn.",
+                type: "hard"
+            },
+            {
+                q: "Tình huống: Nhóm bạn Bình được giao đề tài 'Tìm hiểu các loại cây trồng ở địa phương'. Bình đề xuất ra chợ hỏi người bán rau. Đánh giá đề xuất này:",
+                options: ["Rất thực tế, là một kênh thu thập thông tin trực tiếp từ người xung quanh", "Sai hoàn toàn vì chỉ được tìm trên Google", "Không có giá trị vì người bán rau không biết gì", "Bình đang trốn tránh việc làm bài"],
+                answer: 0,
+                hint: "Thu thập thông tin có thể từ tivi, sách báo, Internet và thực tế từ người xung quanh.",
+                type: "hard"
+            },
+            {
+                q: "Một bài trình chiếu nhóm thành công đạt được điều gì quan trọng nhất về mặt tinh thần nhóm?",
+                options: ["Sự gắn kết, trách nhiệm chung và phát huy năng lực của mọi thành viên", "Chỉ cần trang chiếu có màu sắc rực rỡ", "Chỉ cần điểm số cao không quan trọng cách làm", "Có một cá nhân gánh toàn bộ công việc"],
+                answer: 0,
+                hint: "Bài làm thành công không chỉ ở sản phẩm mà ở tinh thần hợp tác, trách nhiệm của tập thể.",
+                type: "hard"
+            },
+            {
+                q: "Điểm khác biệt chính giữa tìm kiếm thông tin bằng sách báo truyền thống và Internet là gì?",
+                options: ["Internet cung cấp thông tin đa dạng, cập nhật tức thời và tìm kiếm nhanh hơn", "Sách báo luôn luôn có thông tin đúng còn Internet luôn sai", "Internet không cần mạng vẫn dùng được", "Sách báo cập nhật nhanh hơn Internet"],
+                answer: 0,
+                hint: "Internet vượt trội về tốc độ cập nhật, kho dữ liệu khổng lồ và khả năng tra cứu từ khóa tức thì.",
+                type: "hard"
+            },
+            {
+                q: "Điều gì xảy ra nếu tất cả thành viên trong nhóm làm bài trình chiếu đều chỉ chọn làm phần 'Chỉnh sửa hình ảnh'?",
+                options: ["Bài làm bị thiếu hụt nội dung văn bản và không thể hoàn thiện", "Bài làm sẽ vô cùng xuất sắc", "Bài làm sẽ tự bổ sung chữ", "Cô giáo sẽ khen ngợi"],
+                answer: 0,
+                hint: "Nếu không thảo luận phân công bao quát, công việc sẽ bị chồng chéo và thiếu hụt các phần quan trọng khác.",
+                type: "hard"
+            },
+            {
+                q: "Tại sao việc xác định 'Nhu cầu thông tin' lại quan trọng trước khi gõ từ khóa tìm kiếm?",
+                options: ["Giúp định hình chính xác từ khóa và tránh lan man mất thời gian", "Để gõ phím nhanh hơn", "Máy tính sẽ không bị treo", "Để tiết kiệm điện năng"],
+                answer: 0,
+                hint: "Biết rõ mình cần tìm thông tin gì giúp đưa ra từ khóa sát thực tế, đem lại kết quả chính xác.",
+                type: "hard"
+            },
+            {
+                q: "Phân tích lý do An thành công nhất trong 3 bạn khi đi du lịch mùa hè:",
+                options: ["An biết chủ động thu thập thông tin thời tiết và đặc điểm nơi đến trước chuyến đi", "An có nhiều tiền hơn Khoa và Minh", "Nha Trang gần hơn Đà Lạt và Úc", "An đi du lịch cùng nhiều bạn bè hơn"],
+                answer: 0,
+                hint: "An có ý thức thu thập thông tin đầy đủ từ trước, làm cơ sở ra quyết định chuẩn bị trang phục đúng.",
+                type: "hard"
+            },
+            {
+                q: "Khi ghi lại thông tin tìm được vào tệp văn bản trên máy tính, thói quen nào là TỐT NHẤT?",
+                options: ["Ghi rõ nguồn trang web đã lấy thông tin và lưu tệp với tên dễ nhớ", "Lưu tệp không đặt tên", "Copy toàn bộ không cần đọc", "Lưu vào thư mục ẩn không tìm lại được"],
+                answer: 0,
+                hint: "Lưu thông tin kèm trích dẫn nguồn tin cậy và đặt tên file rõ ràng giúp quản lý dữ liệu hiệu quả.",
+                type: "hard"
+            },
+            {
+                q: "Trong các tình huống sau, tình huống nào thể hiện sự HỢP TÁC hiệu quả?",
+                options: ["Minh gặp khó khăn khi làm ảnh, An chủ động hướng dẫn Minh dùng phần mềm", "Khoa thấy Minh chưa xong liền mắng Minh chậm chạp", "An làm xong phần mình liền quay sang chơi game", "Minh giấu không cho bạn xem phần ảnh mình làm"],
+                answer: 0,
+                hint: "Sự hợp tác thể hiện ở việc chủ động quan tâm, giúp đỡ đồng đội vượt qua khó khăn chung.",
+                type: "hard"
+            },
+            {
+                q: "Khi tra cứu từ khóa 'Các điểm tham quan ở Sa Pa', tại sao ta nên nhấp vào 2-3 trang web khác nhau?",
+                options: ["Để có cái nhìn tổng hợp đầy đủ và kiểm chứng độ chính xác thông tin", "Vì máy tính bắt buộc phải nhấp nhiều lần", "Để tăng lượt xem cho các trang web", "Vì nhấp 1 trang sẽ bị lỗi"],
+                answer: 0,
+                hint: "Đọc nhiều nguồn uy tín giúp tổng hợp bức tranh toàn diện và tránh sót thông tin quan trọng.",
+                type: "hard"
+            },
+            {
+                q: "Khái niệm 'Giải quyết vấn đề' trong ngữ cảnh bài học Tin học 4/5 được hiểu là gì?",
+                options: ["Đưa ra các quyết định phù hợp dựa trên thông tin đã thu thập và chọn lọc", "Chỉ là giải các bài toán khó trên lớp", "Sửa chữa các thiết bị điện gia đình", "Tranh luận thắng người khác"],
+                answer: 0,
+                hint: "Giải quyết vấn đề là quá trình nhận diện nhu cầu, thu thập thông tin, ra quyết định và thực thi hiệu quả.",
+                type: "hard"
+            },
+            {
+                q: "Để có bài trình chiếu 'Kinh nghiệm rút ra từ kỳ nghỉ hè' chất lượng nhất, cả nhóm nên:",
+                options: ["Tập hợp trải nghiệm của cả 3 bạn, chọn lọc bài học hay và tổng hợp chung", "Chỉ lấy trải nghiệm của bạn đi nước ngoài", "Chỉ viết lại lý thuyết trong sách giáo khoa", "Copy bài thuyết trình trên mạng"],
+                answer: 0,
+                hint: "Tổng hợp đa dạng trải nghiệm thực tế của tất cả thành viên giúp nội dung phong phú và chân thực.",
+                type: "hard"
+            }
+        ];
+
+        /* ================= GAME STATE VARIABLES ================= */
+        let currentQuizQuestions = [];
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let timerInterval = null;
+        let timeLeft = 30;
+        let userAnswers = []; // Store user's selected answers status
+
+        /* ================= HELPER FUNCTIONS ================= */
+        // Utility to shuffle array in place (Fisher-Yates)
+        function shuffleArray(arr) {
+            for (let i = arr.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [arr[i], arr[j]] = [arr[j], arr[i]];
+            }
+            return arr;
+        }
+
+        // Generate 10 Questions Session (7 Medium + 3 Hard)
+        function generateQuizSet() {
+            const mediums = rawQuestionBank.filter(q => q.type === 'medium');
+            const hards = rawQuestionBank.filter(q => q.type === 'hard');
+
+            shuffleArray(mediums);
+            shuffleArray(hards);
+
+            // Pick 7 medium & 3 hard
+            const selectedMediums = mediums.slice(0, 7);
+            const selectedHards = hards.slice(0, 3);
+
+            const combined = [...selectedMediums, ...selectedHards];
+            shuffleArray(combined); // Shuffle question order
+
+            // Process each question to shuffle its options & track new answer index
+            return combined.map((qObj, index) => {
+                const originalOptions = [...qObj.options];
+                const correctAnswerText = originalOptions[qObj.answer];
+                
+                // Shuffle options
+                const shuffledOptions = [...originalOptions];
+                shuffleArray(shuffledOptions);
+
+                // Find new index of correct answer
+                const newAnswerIndex = shuffledOptions.indexOf(correctAnswerText);
+
+                return {
+                    id: index + 1,
+                    question: qObj.q,
+                    options: shuffledOptions,
+                    answer: newAnswerIndex,
+                    hint: qObj.hint,
+                    type: qObj.type
+                };
+            });
+        }
+
+        /* ================= GAME CONTROL LOGIC ================= */
+        function startGame() {
+            playSound('click');
+            currentQuizQuestions = generateQuizSet();
+            currentQuestionIndex = 0;
+            score = 0;
+            userAnswers = new Array(10).fill(null);
+
+            // UI Switch
+            document.getElementById('screen-start').classList.add('hidden');
+            document.getElementById('screen-result').classList.add('hidden');
+            document.getElementById('screen-quiz').classList.remove('hidden');
+
+            renderQuestionMatrix();
+            loadQuestion();
+        }
+
+        function renderQuestionMatrix() {
+            const matrixContainer = document.getElementById('question-matrix');
+            matrixContainer.innerHTML = '';
+
+            for (let i = 0; i < 10; i++) {
+                const btn = document.createElement('div');
+                btn.id = `matrix-item-${i}`;
+                btn.className = `h-9 rounded-xl flex items-center justify-center font-bold text-xs border transition-all ${
+                    i === currentQuestionIndex 
+                    ? 'bg-indigo-600 text-white border-indigo-400 ring-2 ring-indigo-400/50 scale-105' 
+                    : 'bg-slate-800 text-slate-400 border-slate-700'
+                }`;
+                btn.innerText = i + 1;
+                matrixContainer.appendChild(btn);
+            }
+        }
+
+        function updateQuestionMatrixUI() {
+            for (let i = 0; i < 10; i++) {
+                const btn = document.getElementById(`matrix-item-${i}`);
+                if (!btn) continue;
+
+                const status = userAnswers[i];
+                if (status === 'correct') {
+                    btn.className = "h-9 rounded-xl flex items-center justify-center font-bold text-xs bg-emerald-600/80 text-white border-emerald-400";
+                    btn.innerHTML = `<i class="fa-solid fa-check"></i>`;
+                } else if (status === 'wrong' || status === 'timeout') {
+                    btn.className = "h-9 rounded-xl flex items-center justify-center font-bold text-xs bg-rose-600/80 text-white border-rose-400";
+                    btn.innerHTML = `<i class="fa-solid fa-xmark"></i>`;
+                } else if (i === currentQuestionIndex) {
+                    btn.className = "h-9 rounded-xl flex items-center justify-center font-bold text-xs bg-indigo-600 text-white border-indigo-400 ring-2 ring-indigo-400/50 scale-105";
+                    btn.innerText = i + 1;
+                } else {
+                    btn.className = "h-9 rounded-xl flex items-center justify-center font-bold text-xs bg-slate-800 text-slate-400 border-slate-700";
+                    btn.innerText = i + 1;
+                }
+            }
+        }
+
+        function loadQuestion() {
+            const q = currentQuizQuestions[currentQuestionIndex];
+
+            // Reset States
+            document.getElementById('hint-box').classList.add('hidden');
+            document.getElementById('btn-next').disabled = true;
+            document.getElementById('current-score').innerText = score;
+            document.getElementById('question-tracker').innerText = `Câu hỏi ${currentQuestionIndex + 1} / 10`;
+
+            // Badge Difficulty
+            const badge = document.getElementById('badge-difficulty');
+            if (q.type === 'hard') {
+                badge.innerText = "KHÓ (30%)";
+                badge.className = "px-3 py-1 rounded-lg text-xs font-bold uppercase bg-purple-500/20 text-purple-300 border border-purple-500/40";
+            } else {
+                badge.innerText = "TRUNG BÌNH (70%)";
+                badge.className = "px-3 py-1 rounded-lg text-xs font-bold uppercase bg-amber-500/20 text-amber-300 border border-amber-500/40";
+            }
+
+            // Set Question Text
+            document.getElementById('question-text').innerText = `${q.id}. ${q.question}`;
+
+            // Render 2-Column Options (A, B, C, D)
+            const optionsContainer = document.getElementById('options-container');
+            optionsContainer.innerHTML = '';
+
+            const prefixes = ['A', 'B', 'C', 'D'];
+
+            q.options.forEach((optText, idx) => {
+                const optBtn = document.createElement('button');
+                optBtn.className = "btn-option w-full p-4 bg-slate-800/90 hover:bg-slate-700 border border-slate-700 rounded-2xl flex items-start space-x-3 text-left transition group";
+                optBtn.onclick = () => selectAnswer(idx);
+                optBtn.id = `opt-btn-${idx}`;
+
+                optBtn.innerHTML = `
+                    <span id="opt-prefix-${idx}" class="w-8 h-8 rounded-xl bg-slate-700 group-hover:bg-indigo-600 text-slate-200 group-hover:text-white flex items-center justify-center font-black text-base flex-shrink-0 transition">
+                        ${prefixes[idx]}
+                    </span>
+                    <span class="text-slate-200 font-semibold text-base md:text-lg leading-snug pt-0.5">
+                        ${optText}
+                    </span>
+                `;
+                optionsContainer.appendChild(optBtn);
+            });
+
+            updateQuestionMatrixUI();
+            startTimer();
+        }
+
+        /* ================= TIMER SYSTEM ================= */
+        function startTimer() {
+            clearInterval(timerInterval);
+            timeLeft = 30;
+            updateTimerDisplay();
+
+            timerInterval = setInterval(() => {
+                timeLeft--;
+                updateTimerDisplay();
+
+                if (timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    handleTimeout();
+                }
+            }, 1000);
+        }
+
+        function updateTimerDisplay() {
+            const timerText = document.getElementById('timer-text');
+            const timerCircle = document.getElementById('timer-circle');
+            
+            timerText.innerText = timeLeft;
+
+            // Circle Dash offset calculation (radius 34 -> circumference 213.6)
+            const strokeDashoffset = 213.6 - (213.6 * timeLeft) / 30;
+            timerCircle.style.strokeDashoffset = strokeDashoffset;
+
+            // Color shift based on time
+            if (timeLeft <= 5) {
+                timerCircle.style.stroke = "#f43f5e"; // red
+                timerText.className = "absolute text-2xl font-black text-rose-500 animate-ping";
+            } else if (timeLeft <= 10) {
+                timerCircle.style.stroke = "#f59e0b"; // amber
+                timerText.className = "absolute text-2xl font-black text-amber-400";
+            } else {
+                timerCircle.style.stroke = "#6366f1"; // indigo
+                timerText.className = "absolute text-2xl font-black text-indigo-400";
+            }
+        }
+
+        /* ================= ANSWER HANDLING ================= */
+        function selectAnswer(selectedIndex) {
+            clearInterval(timerInterval);
+            const q = currentQuizQuestions[currentQuestionIndex];
+            const isCorrect = (selectedIndex === q.answer);
+
+            // Disable all option buttons
+            for (let i = 0; i < q.options.length; i++) {
+                const btn = document.getElementById(`opt-btn-${i}`);
+                btn.disabled = true;
+                btn.classList.remove('hover:bg-slate-700', 'btn-option');
+            }
+
+            const selectedBtn = document.getElementById(`opt-btn-${selectedIndex}`);
+            const selectedPrefix = document.getElementById(`opt-prefix-${selectedIndex}`);
+            const correctBtn = document.getElementById(`opt-btn-${q.answer}`);
+            const correctPrefix = document.getElementById(`opt-prefix-${q.answer}`);
+
+            if (isCorrect) {
+                playSound('correct');
+                score++;
+                userAnswers[currentQuestionIndex] = 'correct';
+                document.getElementById('current-score').innerText = score;
+
+                selectedBtn.className = "w-full p-4 bg-emerald-950/80 border-2 border-emerald-500 rounded-2xl flex items-start space-x-3 text-left shadow-lg";
+                selectedPrefix.className = "w-8 h-8 rounded-xl bg-emerald-500 text-white flex items-center justify-center font-black text-base flex-shrink-0";
+            } else {
+                playSound('wrong');
+                userAnswers[currentQuestionIndex] = 'wrong';
+
+                // Highlight wrong selection
+                selectedBtn.className = "w-full p-4 bg-rose-950/80 border-2 border-rose-500 rounded-2xl flex items-start space-x-3 text-left";
+                selectedPrefix.className = "w-8 h-8 rounded-xl bg-rose-500 text-white flex items-center justify-center font-black text-base flex-shrink-0";
+
+                // Highlight correct selection
+                correctBtn.className = "w-full p-4 bg-emerald-950/50 border-2 border-emerald-500/80 rounded-2xl flex items-start space-x-3 text-left";
+                correctPrefix.className = "w-8 h-8 rounded-xl bg-emerald-500 text-white flex items-center justify-center font-black text-base flex-shrink-0";
+            }
+
+            revealHint(q.hint);
+            finishQuestionTurn();
+        }
+
+        function handleTimeout() {
+            playSound('timeout');
+            const q = currentQuizQuestions[currentQuestionIndex];
+            userAnswers[currentQuestionIndex] = 'timeout';
+
+            // Disable buttons
+            for (let i = 0; i < q.options.length; i++) {
+                const btn = document.getElementById(`opt-btn-${i}`);
+                btn.disabled = true;
+            }
+
+            // Highlight Correct Answer
+            const correctBtn = document.getElementById(`opt-btn-${q.answer}`);
+            const correctPrefix = document.getElementById(`opt-prefix-${q.answer}`);
+            correctBtn.className = "w-full p-4 bg-amber-950/60 border-2 border-amber-500 rounded-2xl flex items-start space-x-3 text-left";
+            correctPrefix.className = "w-8 h-8 rounded-xl bg-amber-500 text-white flex items-center justify-center font-black text-base flex-shrink-0";
+
+            revealHint(`HẾT GIỜ! ${q.hint}`);
+            finishQuestionTurn();
+        }
+
+        function revealHint(text) {
+            const hintBox = document.getElementById('hint-box');
+            document.getElementById('hint-text').innerText = text;
+            hintBox.classList.remove('hidden');
+        }
+
+        function finishQuestionTurn() {
+            updateQuestionMatrixUI();
+            const btnNext = document.getElementById('btn-next');
+            btnNext.disabled = false;
+
+            if (currentQuestionIndex === 9) {
+                btnNext.innerHTML = `<span>XEM KẾT QUẢ</span> <i class="fa-solid fa-trophy"></i>`;
+            } else {
+                btnNext.innerHTML = `<span>CÂU TIẾP THEO</span> <i class="fa-solid fa-arrow-right"></i>`;
+            }
+        }
+
+        function nextQuestion() {
+            playSound('click');
+            if (currentQuestionIndex < 9) {
+                currentQuestionIndex++;
+                loadQuestion();
+            } else {
+                showResults();
+            }
+        }
+
+        /* ================= RESULT DISPLAY ================= */
+        function showResults() {
+            clearInterval(timerInterval);
+            playSound('finish');
+
+            document.getElementById('screen-quiz').classList.add('hidden');
+            document.getElementById('screen-result').classList.remove('hidden');
+
+            const finalScoreEl = document.getElementById('final-score');
+            const finalAccuracyEl = document.getElementById('final-accuracy');
+            const resultFeedback = document.getElementById('result-feedback');
+            const resultIcon = document.getElementById('result-icon');
+            const iconContainer = document.getElementById('result-icon-container');
+
+            const accuracy = Math.round((score / 10) * 100);
+
+            finalScoreEl.innerText = `${score}/10`;
+            finalAccuracyEl.innerText = `${accuracy}%`;
+
+            if (score >= 8) {
+                resultFeedback.innerText = "Xuất sắc! Bạn đã nắm rất vững kiến thức Bài 3 và kỹ năng tìm kiếm thông tin!";
+                resultIcon.className = "fa-solid fa-trophy text-5xl text-amber-400";
+                iconContainer.className = "w-24 h-24 rounded-full bg-amber-500/20 border-2 border-amber-400 flex items-center justify-center glow-active";
+            } else if (score >= 5) {
+                resultFeedback.innerText = "Khá tốt! Bạn đã hiểu cơ bản về thu thập thông tin và hợp tác nhóm.";
+                resultIcon.className = "fa-solid fa-medal text-5xl text-indigo-400";
+                iconContainer.className = "w-24 h-24 rounded-full bg-indigo-500/20 border-2 border-indigo-400 flex items-center justify-center";
+            } else {
+                resultFeedback.innerText = "Cần cố gắng hơn! Hãy đọc lại file Bài 3 và thử sức lượt chơi mới nhé!";
+                resultIcon.className = "fa-solid fa-book-open text-5xl text-rose-400";
+                iconContainer.className = "w-24 h-24 rounded-full bg-rose-500/20 border-2 border-rose-400 flex items-center justify-center";
+            }
+        }
+    </script>
+</body>
+</html>
