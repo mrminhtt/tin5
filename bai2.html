@@ -1,0 +1,1454 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trò Chơi Trắc Nghiệm: Gõ Bàn Phím Đúng Cách</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Lexend', sans-serif;
+            background-color: #0b0f19;
+            color: #f3f4f6;
+            user-select: none;
+        }
+        .glass-panel {
+            background: rgba(17, 24, 39, 0.85);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .glow-accent {
+            box-shadow: 0 0 25px rgba(59, 130, 246, 0.3);
+        }
+        .glow-success {
+            box-shadow: 0 0 25px rgba(34, 197, 94, 0.4);
+        }
+        .glow-danger {
+            box-shadow: 0 0 25px rgba(239, 68, 68, 0.4);
+        }
+        .btn-option {
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .btn-option:hover:not(:disabled) {
+            transform: translateY(-2px);
+            border-color: #60a5fa;
+            background-color: rgba(30, 58, 138, 0.4);
+        }
+        /* Pulse timer warning */
+        @keyframes pulse-red {
+            0%, 100% { color: #ef4444; transform: scale(1); }
+            50% { color: #f87171; transform: scale(1.08); }
+        }
+        .timer-warning {
+            animation: pulse-red 0.5s infinite;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-2 md:p-6 overflow-x-hidden">
+
+    <!-- MAIN CONTAINER WITH ~16:9 ASPECT RATIO SPECIFICATION -->
+    <div class="w-full max-w-6xl aspect-[16/9] min-h-[620px] bg-slate-900 rounded-3xl border border-slate-800 shadow-2xl flex flex-col overflow-hidden relative glow-accent">
+        
+        <!-- HEADER BAR -->
+        <header class="h-16 bg-slate-950/80 border-b border-slate-800 px-6 flex items-center justify-between shrink-0">
+            <div class="flex items-center space-x-3">
+                <div class="p-2 bg-blue-600/20 text-blue-400 rounded-lg border border-blue-500/30">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                    </svg>
+                </div>
+                <div>
+                    <h1 class="text-lg md:text-xl font-bold bg-gradient-to-r from-blue-400 to-indigo-300 bg-clip-text text-transparent">
+                        THỬ THÁCH TIN HỌC: GÕ BÀN PHÍM ĐÚNG CÁCH
+                    </h1>
+                    <p class="text-xs text-slate-400">Bài 2 - Chương trình Tin Học Lớp 3</p>
+                </div>
+            </div>
+            
+            <div class="flex items-center space-x-4">
+                <button id="soundToggle" onclick="toggleSound()" class="p-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 transition flex items-center gap-2 text-xs font-semibold">
+                    <span id="soundIcon">🔊</span> <span id="soundText" class="hidden sm:inline">Bật âm thanh</span>
+                </button>
+            </div>
+        </header>
+
+        <!-- SCREEN 1: WELCOME SCREEN -->
+        <div id="startScreen" class="flex-1 flex flex-col items-center justify-center p-8 text-center relative overflow-hidden">
+            <div class="absolute -top-24 -left-24 w-96 h-96 bg-blue-600/10 rounded-full blur-3xl"></div>
+            <div class="absolute -bottom-24 -right-24 w-96 h-96 bg-indigo-600/10 rounded-full blur-3xl"></div>
+
+            <div class="z-10 max-w-2xl">
+                <div class="w-24 h-24 mx-auto mb-6 bg-gradient-to-tr from-blue-600 to-indigo-500 rounded-3xl p-0.5 shadow-lg shadow-blue-500/30 flex items-center justify-center">
+                    <div class="w-full h-full bg-slate-950 rounded-[22px] flex items-center justify-center text-4xl">
+                        ⌨️
+                    </div>
+                </div>
+
+                <h2 class="text-3xl md:text-4xl font-extrabold text-white mb-4">
+                    Đấu Trí Bàn Phím Máy Tính
+                </h2>
+                <p class="text-slate-300 text-base md:text-lg mb-8 leading-relaxed">
+                    Hệ thống sẽ lấy ngẫu nhiên <span class="text-blue-400 font-bold">10 câu hỏi</span> từ ngân hàng 100 câu hỏi (gồm <span class="text-emerald-400 font-bold">70% Trung bình</span> và <span class="text-amber-400 font-bold">30% Khó</span>). Vị trí đáp án được xáo trộn tự động mỗi lượt làm bài!
+                </p>
+
+                <div class="grid grid-cols-3 gap-4 max-w-lg mx-auto mb-8 text-left">
+                    <div class="bg-slate-800/60 p-3 rounded-xl border border-slate-700/50">
+                        <div class="text-xs text-slate-400">Thời gian / câu</div>
+                        <div class="text-lg font-bold text-blue-400">30 Giây</div>
+                    </div>
+                    <div class="bg-slate-800/60 p-3 rounded-xl border border-slate-700/50">
+                        <div class="text-xs text-slate-400">Cấu trúc đề</div>
+                        <div class="text-lg font-bold text-emerald-400">7 TB + 3 Khó</div>
+                    </div>
+                    <div class="bg-slate-800/60 p-3 rounded-xl border border-slate-700/50">
+                        <div class="text-xs text-slate-400">Thang điểm</div>
+                        <div class="text-lg font-bold text-indigo-400">10 Điểm</div>
+                    </div>
+                </div>
+
+                <button onclick="startGame()" class="px-10 py-4 bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white font-bold text-xl rounded-2xl shadow-xl shadow-indigo-500/30 transform hover:-translate-y-1 transition duration-200">
+                    🚀 BẮT ĐẦU LÀM BÀI
+                </button>
+            </div>
+        </div>
+
+        <!-- SCREEN 2: GAME SCREEN (LAYOUT 16:9 SPLIT) -->
+        <div id="gameScreen" class="hidden flex-1 flex flex-col md:flex-row overflow-hidden">
+            
+            <!-- LEFT MAIN CONTENT AREA (70%) -->
+            <div class="flex-1 p-6 flex flex-col justify-between overflow-y-auto relative">
+                
+                <!-- Question Header Info -->
+                <div>
+                    <div class="flex justify-between items-center mb-4">
+                        <span id="difficultyBadge" class="px-3 py-1 rounded-full text-xs font-bold bg-blue-500/20 text-blue-300 border border-blue-500/30">
+                            Độ khó: Trung bình
+                        </span>
+                        <span class="text-xs text-slate-400 font-medium">
+                            Câu hỏi <span id="currentQNumText" class="text-blue-400 font-bold">1</span> / 10
+                        </span>
+                    </div>
+
+                    <!-- Question Text (Large Text) -->
+                    <h3 id="questionText" class="text-xl md:text-2xl font-bold text-white mb-6 leading-relaxed">
+                        Nội dung câu hỏi sẽ hiển thị ở đây...
+                    </h3>
+                </div>
+
+                <!-- Answer Options (2-Column Grid A, B, C, D) -->
+                <div id="optionsContainer" class="grid grid-cols-1 md:grid-cols-2 gap-4 my-2">
+                    <!-- Dynamic rendering of 4 choices -->
+                </div>
+
+                <!-- Explanation/Hint Box (Hidden until answer chosen) -->
+                <div id="explanationBox" class="hidden mt-4 p-4 rounded-xl bg-slate-800/90 border border-slate-700 text-sm">
+                    <div class="flex items-center gap-2 font-bold text-amber-400 mb-1">
+                        <span>💡 Giải thích & Gợi ý đáp án đúng:</span>
+                    </div>
+                    <p id="explanationText" class="text-slate-200 leading-relaxed">
+                        Nội dung giải thích đáp án...
+                    </p>
+                    <button id="nextBtn" onclick="nextQuestion()" class="mt-3 px-6 py-2.5 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-lg transition float-right flex items-center gap-2">
+                        Câu tiếp theo ➔
+                    </button>
+                </div>
+            </div>
+
+            <!-- RIGHT SIDEBAR PANEL (30%) -->
+            <div class="w-full md:w-80 bg-slate-950/70 border-t md:border-t-0 md:border-l border-slate-800 p-5 flex flex-col justify-between shrink-0">
+                
+                <div>
+                    <!-- Countdown Timer -->
+                    <div class="bg-slate-900/90 p-4 rounded-2xl border border-slate-800 text-center mb-5">
+                        <div class="text-xs uppercase tracking-wider text-slate-400 mb-1">Thời gian còn lại</div>
+                        <div id="timerText" class="text-4xl font-extrabold text-blue-400 tracking-tight">
+                            30s
+                        </div>
+                        <div class="w-full bg-slate-800 h-2 rounded-full mt-3 overflow-hidden">
+                            <div id="timerBar" class="bg-blue-500 h-full w-full transition-all duration-1000 ease-linear"></div>
+                        </div>
+                    </div>
+
+                    <!-- Question Index Grid (Mục lục số câu) -->
+                    <div class="mb-5">
+                        <div class="text-xs font-bold text-slate-400 mb-2 uppercase tracking-wider">Mục lục câu hỏi</div>
+                        <div id="questionIndexGrid" class="grid grid-cols-5 gap-2">
+                            <!-- 10 question indicators -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Score Board & Stats (Bảng điểm & Số lần kiểm tra) -->
+                <div class="bg-slate-900/90 p-4 rounded-2xl border border-slate-800 text-xs text-slate-300 space-y-2">
+                    <div class="font-bold text-slate-200 border-b border-slate-800 pb-2 mb-2 flex justify-between items-center">
+                        <span>📊 THỐNG KÊ LÀM BÀI</span>
+                        <span class="text-xs font-normal text-blue-400">Lưu tự động</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-slate-400">Điểm cao nhất:</span>
+                        <span id="statHighScore" class="font-bold text-emerald-400 text-sm">0 / 10</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-slate-400">Số lần kiểm tra:</span>
+                        <span id="statAttempts" class="font-bold text-indigo-400 text-sm">0 lần</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-slate-400">Lần thi gần nhất:</span>
+                        <span id="statLastScore" class="font-bold text-slate-300">Chưa có</span>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- SCREEN 3: RESULT / FINISH SCREEN -->
+        <div id="resultScreen" class="hidden flex-1 flex flex-col items-center justify-center p-8 text-center relative overflow-hidden">
+            <div class="max-w-md w-full glass-panel p-8 rounded-3xl border border-slate-700 text-center shadow-2xl">
+                <div id="resultEmoji" class="text-6xl mb-3">🏆</div>
+                <h2 class="text-2xl font-bold text-white mb-1">HOÀN THÀNH BÀI KIỂM TRA!</h2>
+                <p class="text-xs text-slate-400 mb-6">Kết quả thi trắc nghiệm gõ bàn phím</p>
+
+                <div class="bg-slate-950/80 p-6 rounded-2xl border border-slate-800 mb-6">
+                    <div class="text-xs uppercase text-slate-400 font-semibold mb-1">Tổng điểm đạt được</div>
+                    <div class="text-5xl font-black bg-gradient-to-r from-blue-400 via-indigo-400 to-emerald-400 bg-clip-text text-transparent mb-2">
+                        <span id="finalScoreText">0</span> / 10
+                    </div>
+                    <p id="resultFeedback" class="text-sm font-medium text-slate-300">
+                        Nỗ lực tuyệt vời!
+                    </p>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3 mb-6 text-left text-xs">
+                    <div class="p-3 bg-slate-900 rounded-xl border border-slate-800">
+                        <span class="text-slate-400 block">Số câu đúng:</span>
+                        <span id="correctCountText" class="text-lg font-bold text-emerald-400">0</span>
+                    </div>
+                    <div class="p-3 bg-slate-900 rounded-xl border border-slate-800">
+                        <span class="text-slate-400 block">Số câu sai/quá giờ:</span>
+                        <span id="wrongCountText" class="text-lg font-bold text-red-400">0</span>
+                    </div>
+                </div>
+
+                <button onclick="startGame()" class="w-full py-3.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-bold text-base rounded-xl shadow-lg shadow-indigo-500/30 transition">
+                    🔄 LÀM BÀI KHÁC (LẤY CÂU HỎI MỚI)
+                </button>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- SOUND SYNTHESIZER & GAME LOGIC SCRIPT -->
+    <script>
+        // 100 QUESTIONS DATA POOL (70 Medium, 30 Hard)
+        const QUESTION_POOL = [
+            // --- 70 MEDIUM QUESTIONS ---
+            {
+                q: "Ngón tay nào phụ trách gõ phím số 1 trên hàng phím số?",
+                options: ["Ngón út tay trái", "Ngón áp út tay trái", "Ngón giữa tay trái", "Ngón trỏ tay trái"],
+                answer: 0,
+                difficulty: "medium",
+                explain: "Theo phân công ngón tay, ngón út tay trái phụ trách gõ phím số 1."
+            },
+            {
+                q: "Phím số 2 trên hàng phím số do ngón tay nào phụ trách gõ?",
+                options: ["Ngón áp út tay trái", "Ngón trỏ tay trái", "Ngón giữa tay trái", "Ngón út tay trái"],
+                answer: 0,
+                difficulty: "medium",
+                explain: "Ngón áp út tay trái vươn lên gõ phím số 2."
+            },
+            {
+                q: "Ngón tay nào phụ trách gõ phím số 3?",
+                options: ["Ngón giữa tay trái", "Ngón áp út tay trái", "Ngón trỏ tay trái", "Ngón giữa tay phải"],
+                answer: 0,
+                difficulty: "medium",
+                explain: "Ngón giữa tay trái đảm nhận việc gõ phím số 3."
+            },
+            {
+                q: "Các phím số 4 và 5 trên hàng phím số do ngón tay nào gõ?",
+                options: ["Ngón trỏ tay trái", "Ngón giữa tay trái", "Ngón trỏ tay phải", "Ngón cái tay trái"],
+                answer: 0,
+                difficulty: "medium",
+                explain: "Ngón trỏ tay trái vươn lên phụ trách cả 2 phím số 4 và 5."
+            },
+            {
+                q: "Các phím số 6 và 7 trên hàng phím số do ngón tay nào phụ trách?",
+                options: ["Ngón trỏ tay phải", "Ngón trỏ tay trái", "Ngón giữa tay phải", "Ngón áp út tay phải"],
+                answer: 0,
+                difficulty: "medium",
+                explain: "Ngón trỏ tay phải vươn sang phụ trách gõ hai phím số 6 và 7."
+            },
+            {
+                q: "Ngón giữa tay phải đảm nhận phụ trách gõ phím số nào?",
+                options: ["Phím số 8", "Phím số 7", "Phím số 9", "Phím số 6"],
+                answer: 0,
+                difficulty: "medium",
+                explain: "Ngón giữa tay phải phụ trách gõ phím số 8."
+            },
+            {
+                q: "Ngón áp út tay phải phụ trách gõ phím số nào trên hàng phím số?",
+                options: ["Phím số 9", "Phím số 8", "Phím số 0", "Phím số 7"],
+                answer: 0,
+                difficulty: "medium",
+                explain: "Ngón áp út tay phải vươn lên gõ phím số 9."
+            },
+            {
+                q: "Phím số 0 trên hàng phím số do ngón tay nào phụ trách gõ?",
+                options: ["Ngón út tay phải", "Ngón áp út tay phải", "Ngón giữa tay phải", "Ngón cái tay phải"],
+                answer: 0,
+                difficulty: "medium",
+                explain: "Ngón út tay phải đảm nhận gõ phím số 0."
+            },
+            {
+                q: "Trước khi gõ phím, hai bàn tay cần đặt ở vị trí nào trên bàn phím?",
+                options: ["Vị trí xuất phát trên hàng phím cơ sở", "Hàng phím số", "Hàng phím trên", "Hàng phím dưới"],
+                answer: 0,
+                difficulty: "medium",
+                explain: "Hai bàn tay luôn luôn xuất phát từ vị trí chuẩn trên hàng phím cơ sở."
+            },
+            {
+                q: "Sau khi vươn ngón tay gõ xong một phím số, em cần làm gì?",
+                options: ["Đưa ngón tay trở về vị trí xuất phát", "Giữ nguyên ngón tay trên hàng phím số", "Đặt ngón tay xuống hàng phím dưới", "Thả tự do hai bàn tay"],
+                answer: 0,
+                difficulty: "medium",
+                explain: "Quy tắc quan trọng: Sau khi gõ xong phím số, phải lập tức đưa ngón tay trở về vị trí xuất phát."
+            },
+            {
+                q: "Một trong những lợi ích lớn nhất của việc gõ bàn phím đúng cách là gì?",
+                options: ["Tiết kiệm thời gian và công sức", "Giúp máy tính không bị hỏng phím", "Làm cho bàn phím đẹp hơn", "Không cần bật nguồn máy tính"],
+                answer: 0,
+                difficulty: "medium",
+                explain: "Gõ đúng cách giúp gõ nhanh, chính xác, tiết kiệm thời gian và công sức."
+            },
+            {
+                q: "Luyện tập gõ bàn phím bằng 10 ngón giúp em bảo vệ điều gì?",
+                options: ["Bảo vệ sức khỏe (mắt và cổ)", "Bảo vệ màn hình máy tính", "Bảo vệ chuột máy tính", "Bảo vệ bàn làm việc"],
+                answer: 0,
+                difficulty: "medium",
+                explain: "Gõ không cần nhìn bàn phím giúp tránh mỏi mắt, mỏi cổ, bảo vệ sức khỏe."
+            },
+            {
+                q: "Phần mềm đơn giản nào thường dùng để thực hành gõ văn bản trong bài học?",
+                options: ["Notepad", "Photoshop", "Excel", "Paint"],
+                answer: 0,
+                difficulty: "medium",
+                explain: "Bài học hướng dẫn thực hành gõ văn bản cơ bản trên phần mềm Notepad."
+            },
+            {
+                q: "Để khởi động phần mềm Notepad từ màn hình nền, em thao tác ra sao?",
+                options: ["Nháy đúp chuột vào biểu tượng Notepad", "Nháy chuột phải 1 lần", "Nhấn nút nguồn", "Kéo thả biểu tượng vào thùng rác"],
+                answer: 0,
+                difficulty: "medium",
+                explain: "Nháy đúp chuột (Double click) vào biểu tượng phần mềm để khởi động."
+            },
+            {
+                q: "Để gõ chữ hoa trong phần mềm soạn thảo, em có thể dùng phím nào?",
+                options: ["Phím Caps Lock hoặc Shift", "Phím Tab", "Phím Enter", "Phím Spacebar"],
+                answer: 0,
+                difficulty: "medium",
+                explain: "Bật Caps Lock hoặc giữ phím Shift đồng thời gõ chữ để tạo chữ hoa."
+            },
+            {
+                q: "Khi gõ dấu chấm hoặc dấu phẩy trong văn bản, vị trí đặt dấu như thế nào?",
+                options: ["Gõ liền sau từ trước đó, rồi mới gõ cách", "Gõ dấu cách trước rồi mới gõ dấu chấm", "Gõ dấu cách cả trước và sau", "Không bao giờ dùng dấu cách"],
+                answer: 0,
+                difficulty: "medium",
+                explain: "Quy tắc chuẩn: Dấu chấm, phẩy gõ sát liền từ phía trước, sau đó mới bấm phím cách."
+            },
+            {
+                q: "Số điện thoại khẩn cấp 113 dùng để gọi lực lượng nào?",
+                options: ["Công an", "Cứu hỏa", "Cấp cứu y tế", "Bảo vệ trẻ em"],
+                answer: 0,
+                difficulty: "medium",
+                explain: "113 là số điện thoại khẩn cấp gọi Công an."
+            },
+            {
+                q: "Số điện thoại khẩn cấp 114 là của dịch vụ nào?",
+                options: ["Cứu hỏa", "Công an", "Cấp cứu", "Tìm kiếm cứu nạn"],
+                answer: 0,
+                difficulty: "medium",
+                explain: "114 là số điện thoại báo Cứu hỏa."
+            },
+            {
+                q: "Số điện thoại khẩn cấp 115 là của lực lượng nào?",
+                options: ["Cấp cứu y tế", "Công an", "Cứu hỏa", "Bảo vệ trẻ em"],
+                answer: 0,
+                difficulty: "medium",
+                explain: "115 là số điện thoại gọi Cấp cứu y tế."
+            },
+            {
+                q: "Tổng đài quốc gia Bảo vệ trẻ em có số điện thoại là bao nhiêu?",
+                options: ["111", "112", "113", "115"],
+                answer: 0,
+                difficulty: "medium",
+                explain: "111 là số Tổng đài quốc gia Bảo vệ trẻ em."
+            },
+            {
+                q: "Số điện thoại khẩn cấp 112 dùng trong trường hợp nào?",
+                options: ["Tìm kiếm, cứu nạn", "Cứu hỏa", "Công an", "Cấp cứu"],
+                answer: 0,
+                difficulty: "medium",
+                explain: "112 là số điện thoại khẩn cấp Tìm kiếm và Cứu nạn."
+            },
+            {
+                q: "Một năm thông thường (không phải năm nhuận) có bao nhiêu ngày?",
+                options: ["365 ngày", "366 ngày", "360 ngày", "300 ngày"],
+                answer: 0,
+                difficulty: "medium",
+                explain: "Năm thông thường có 365 ngày."
+            },
+            {
+                q: "Một năm nhuận có bao nhiêu ngày?",
+                options: ["366 ngày", "365 ngày", "364 ngày", "367 ngày"],
+                answer: 0,
+                difficulty: "medium",
+                explain: "Năm nhuận có 366 ngày."
+            },
+            {
+                q: "Trong năm thông thường, tháng 2 có bao nhiêu ngày?",
+                options: ["28 ngày", "29 ngày", "30 ngày", "31 ngày"],
+                answer: 0,
+                difficulty: "medium",
+                explain: "Tháng 2 của năm bình thường có 28 ngày."
+            },
+            {
+                q: "Vào năm nhuận, tháng 2 có bao nhiêu ngày?",
+                options: ["29 ngày", "28 ngày", "30 ngày", "31 ngày"],
+                answer: 0,
+                difficulty: "medium",
+                explain: "Vào năm nhuận, tháng 2 có thêm 1 ngày thành 29 ngày."
+            },
+            {
+                q: "Các tháng nào sau đây đều có 30 ngày?",
+                options: ["Tháng 4, 6, 9, 11", "Tháng 1, 3, 5, 7", "Tháng 2, 4, 6, 8", "Tháng 8, 9, 10, 11"],
+                answer: 0,
+                difficulty: "medium",
+                explain: "Các tháng 4, 6, 9, 11 trong năm đều có 30 ngày."
+            },
+            {
+                q: "Hai ngón tay cái được đặt ở đâu tại vị trí xuất phát?",
+                options: ["Đặt trên phím cách (Spacebar)", "Đặt trên phím Enter", "Đặt trên hàng phím số", "Thả do dưới bàn"],
+                answer: 0,
+                difficulty: "medium",
+                explain: "Ở vị trí xuất phát, 2 ngón cái luôn phụ trách và đặt nhẹ trên phím cách."
+            },
+            {
+                q: "Trình tự đúng khi gõ một phím số là gì?",
+                options: ["Từ vị trí xuất phát ➔ Vươn ngón tay gõ phím ➔ Trở về vị trí xuất phát", "Gõ phím ➔ Mới đặt tay lên xuất phát", "Vươn ngón tay gõ ➔ Giữ nguyên tay ở phím số", "Gõ liên tục bằng ngón trỏ"],
+                answer: 0,
+                difficulty: "medium",
+                explain: "Quy trình: Xuất phát ➔ Vươn ngón gõ phím ➔ Thu ngón tay về vị trí xuất phát."
+            },
+            {
+                q: "Hàng phím số nằm ở vị trí nào trên bàn phím máy tính?",
+                options: ["Phía trên hàng phím trên", "Dưới hàng phím cơ sở", "Dưới cùng bàn phím", "Bên ngoài bàn phím"],
+                answer: 0,
+                difficulty: "medium",
+                explain: "Hàng phím số nằm ngay phía trên của hàng phím trên."
+            },
+            {
+                q: "Ngón trỏ tay trái phụ trách tổng cộng mấy phím số trên hàng phím số?",
+                options: ["2 phím (phím 4 và 5)", "1 phím (phím 4)", "3 phím", "4 phím"],
+                answer: 0,
+                difficulty: "medium",
+                explain: "Ngón trỏ tay trái gõ 2 phím số: 4 và 5."
+            },
+            {
+                q: "Ngón trỏ tay phải phụ trách tổng cộng mấy phím số trên hàng phím số?",
+                options: ["2 phím (phím 6 và 7)", "1 phím (phím 6)", "3 phím", "4 phím"],
+                answer: 0,
+                difficulty: "medium",
+                explain: "Ngón trỏ tay phải gõ 2 phím số: 6 và 7."
+            },
+            {
+                q: "Để gõ số 113 (Công an), em dùng lần lượt các ngón tay nào?",
+                options: ["Ngón út tay trái (gõ 1, 1), ngón giữa tay trái (gõ 3)", "Ngón trỏ tay trái gõ cả 3 số", "Ngón trỏ tay phải gõ cả 3 số", "Ngón cái tay trái gõ"],
+                answer: 0,
+                difficulty: "medium",
+                explain: "Số 1 do ngón út tay trái gõ, số 3 do ngón giữa tay trái gõ."
+            },
+            {
+                q: "Để gõ số 114 (Cứu hỏa), ngón tay nào dùng để gõ phím số 4?",
+                options: ["Ngón trỏ tay trái", "Ngón giữa tay trái", "Ngón áp út tay trái", "Ngón trỏ tay phải"],
+                answer: 0,
+                difficulty: "medium",
+                explain: "Phím 4 do ngón trỏ tay trái phụ trách."
+            },
+            {
+                q: "Để gõ số 115 (Cấp cứu), ngón tay nào dùng để gõ phím số 5?",
+                options: ["Ngón trỏ tay trái", "Ngón giữa tay trái", "Ngón áp út tay trái", "Ngón trỏ tay phải"],
+                answer: 0,
+                difficulty: "medium",
+                explain: "Phím 5 do ngón trỏ tay trái phụ trách."
+            },
+            {
+                q: "Phím dài nhất trên bàn phím máy tính là phím nào?",
+                options: ["Phím cách (Spacebar)", "Phím Enter", "Phím Shift", "Phím Backspace"],
+                answer: 0,
+                difficulty: "medium",
+                explain: "Phím cách (Spacebar) nằm ở hàng phím dưới cùng và là phím dài nhất."
+            },
+            {
+                q: "Khi luyện tập gõ bàn phím thành thạo, em sẽ không cần làm điều gì?",
+                options: ["Không cần nhìn vào bàn phím", "Không cần bật màn hình", "Không cần dùng 10 ngón", "Không cần học bài"],
+                answer: 0,
+                difficulty: "medium",
+                explain: "Thành thạo gõ mười ngón giúp em gõ mà không cần nhìn xuống bàn phím."
+            },
+            {
+                q: "Việc không phải nhìn xuống bàn phím khi gõ mang lại tác dụng sức khỏe nào?",
+                options: ["Không bị mỏi mắt và mỏi cổ", "Giúp tay khỏe hơn", "Giúp tai nghe rõ hơn", "Giúp tăng chiều cao"],
+                answer: 0,
+                difficulty: "medium",
+                explain: "Mắt nhìn thẳng màn hình, cổ giữ thẳng giúp tránh mỏi mắt và đau mỏi cổ."
+            },
+            {
+                q: "Để tạo khoảng cách giữa các từ khi gõ văn bản, em bấm phím nào?",
+                options: ["Phím cách (Spacebar)", "Phím Enter", "Phím Tab", "Phím Shift"],
+                answer: 0,
+                difficulty: "medium",
+                explain: "Bấm phím cách 1 lần để chèn khoảng trắng giữa 2 từ."
+            },
+            {
+                q: "Để xuống dòng mới khi đang soạn thảo văn bản, em dùng phím nào?",
+                options: ["Phím Enter", "Phím Spacebar", "Phím Shift", "Phím Caps Lock"],
+                answer: 0,
+                difficulty: "medium",
+                explain: "Nhấn Enter để kết thúc đoạn và xuống dòng tiếp theo."
+            },
+            {
+                q: "Mỗi từ trong văn bản chuẩn nên cách nhau bao nhiêu dấu cách?",
+                options: ["1 dấu cách", "2 dấu cách", "3 dấu cách", "Không cần cách"],
+                answer: 0,
+                difficulty: "medium",
+                explain: "Quy chuẩn trình bày văn bản là dùng đúng 1 dấu cách giữa 2 từ."
+            },
+            {
+                q: "Ngón giữa tay trái phụ trách phím số 3, phím này nằm cạnh phím số nào?",
+                options: ["Phím số 2 và phím số 4", "Phím số 1 và số 2", "Phím số 4 và số 5", "Phím số 5 và số 6"],
+                answer: 0,
+                difficulty: "medium",
+                explain: "Phím 3 nằm giữa phím số 2 và phím số 4."
+            },
+            {
+                q: "Phím số 8 nằm trên hàng phím số do ngón tay nào gõ?",
+                options: ["Ngón giữa tay phải", "Ngón trỏ tay phải", "Ngón áp út tay phải", "Ngón giữa tay trái"],
+                answer: 0,
+                difficulty: "medium",
+                explain: "Ngón giữa tay phải vươn lên gõ phím số 8."
+            },
+            {
+                q: "Khi gõ dãy số 1, 2, 3, 4, bàn tay nào sẽ làm việc nhiều hơn?",
+                options: ["Bàn tay trái", "Bàn tay phải", "Cả hai tay bằng nhau", "Không tay nào"],
+                answer: 0,
+                difficulty: "medium",
+                explain: "Các phím 1, 2, 3, 4 đều thuộc khu vực phụ trách của bàn tay trái."
+            },
+            {
+                q: "Khi gõ dãy số 7, 8, 9, 0, bàn tay nào sẽ phụ trách?",
+                options: ["Bàn tay phải", "Bàn tay trái", "Cả hai tay phụ trách cùng lúc", "Ngón cái trái"],
+                answer: 0,
+                difficulty: "medium",
+                explain: "Các phím 7, 8, 9, 0 đều thuộc khu vực phụ trách của bàn tay phải."
+            },
+            {
+                q: "Ngón tay nào gõ phím số có giá trị nhỏ nhất trên hàng phím số (phím số 0 đến 9)?",
+                options: ["Ngón út tay phải (gõ phím 0)", "Ngón út tay trái", "Ngón cái", "Ngón trỏ"],
+                answer: 0,
+                difficulty: "medium",
+                explain: "Phím số 0 có giá trị nhỏ nhất, do ngón út tay phải gõ."
+            },
+            {
+                q: "Hàng phím chứa các phím A, S, D, F, J, K, L gọi là gì?",
+                options: ["Hàng phím cơ sở", "Hàng phím số", "Hàng phím trên", "Hàng phím dưới"],
+                answer: 0,
+                difficulty: "medium",
+                explain: "Hàng phím chứa A, S, D, F, J, K, L là hàng phím cơ sở (Home row)."
+            },
+            {
+                q: "Các phím gai F và J nằm ở hàng phím nào?",
+                options: ["Hàng phím cơ sở", "Hàng phím số", "Hàng phím trên", "Hàng phím dưới"],
+                answer: 0,
+                difficulty: "medium",
+                explain: "Hai phím có gai F và J làm mốc đặt tay nằm ở hàng phím cơ sở."
+            },
+            {
+                q: "Khi gõ xong một phím bất kỳ, cổ tay nên giữ ở trạng thái nào?",
+                options: ["Thả lỏng tự nhiên, không bị gập quá mức", "Gập thật chặt", "Tựa cứng xuống cạnh bàn", "Nhấc cao hẳn lên không trung"],
+                answer: 0,
+                difficulty: "medium",
+                explain: "Giữ cổ tay thẳng và thả lỏng giúp không bị mỏi hay chấn thương."
+            },
+            {
+                q: "Phần mềm PowerPoint ngoài trình chiếu còn có thể dùng để làm gì trong bài học?",
+                options: ["Thực hành gõ bàn phím đúng cách", "Xem tivi", "Chơi game 3D", "Lướt web"],
+                answer: 0,
+                difficulty: "medium",
+                explain: "Phần mềm PowerPoint dùng để thực hành gõ lời bài hát/văn bản đúng cách."
+            },
+            {
+                q: "Để xóa ký tự bị gõ sai phía trước con trỏ, em dùng phím nào?",
+                options: ["Phím Backspace", "Phím Spacebar", "Phím Shift", "Phím Enter"],
+                answer: 0,
+                difficulty: "medium",
+                explain: "Phím Backspace (nằm ở góc trên phải hàng phím số) dùng để xóa ký tự đằng trước."
+            },
+            {
+                q: "Tháng nào sau đây có 31 ngày?",
+                options: ["Tháng 1", "Tháng 4", "Tháng 6", "Tháng 9"],
+                answer: 0,
+                difficulty: "medium",
+                explain: "Tháng 1 là tháng có 31 ngày (cùng với tháng 3, 5, 7, 8, 10, 12)."
+            },
+            {
+                q: "Tháng 12 trong năm có bao nhiêu ngày?",
+                options: ["31 ngày", "30 ngày", "28 ngày", "29 ngày"],
+                answer: 0,
+                difficulty: "medium",
+                explain: "Tháng 12 có 31 ngày."
+            },
+            {
+                q: "Tháng 8 trong năm có bao nhiêu ngày?",
+                options: ["31 ngày", "30 ngày", "28 ngày", "29 ngày"],
+                answer: 0,
+                difficulty: "medium",
+                explain: "Tháng 8 có 31 ngày."
+            },
+            {
+                q: "Việc gõ bàn phím không đúng cách (gõ mò 2 ngón) sẽ gây ra tác hại gì?",
+                options: ["Gõ chậm, dễ mỏi mắt mỏi cổ", "Hỏng máy tính", "Mất kết nối Internet", "Không gõ được số"],
+                answer: 0,
+                difficulty: "medium",
+                explain: "Gõ bằng 2 ngón khiến thao tác rất chậm, mắt phải liên tục nhìn xuống phím gây mỏi."
+            },
+            {
+                q: "Khi luyện gõ hàng phím số, mắt em nên nhìn vào đâu?",
+                options: ["Màn hình máy tính", "Bàn phím", "Bàn tay", "Chuột máy tính"],
+                answer: 0,
+                difficulty: "medium",
+                explain: "Cần tập thói quen nhìn vào màn hình (hoặc tài liệu), không nhìn bàn phím."
+            },
+            {
+                q: "Ngón tay nào phụ trách phím màu tương ứng trên hàng phím số theo bài học?",
+                options: ["Mỗi ngón tay được phân công phím màu cố định", "Ai thích gõ ngón nào cũng được", "Dùng ngón trỏ gõ hết", "Dùng ngón cái gõ"],
+                answer: 0,
+                difficulty: "medium",
+                explain: "Mỗi ngón tay được quy định màu sắc phụ trách các phím cụ thể."
+            },
+            {
+                q: "Hai ngón trỏ đặt ở hai phím xuất phát nào trên hàng phím cơ sở?",
+                options: ["Phím F (tay trái) và phím J (tay phải)", "Phím A và phím L", "Phím S và phím K", "Phím D và phím J"],
+                answer: 0,
+                difficulty: "medium",
+                explain: "Hai ngón trỏ đặt lên 2 phím có gai F và J."
+            },
+            {
+                q: "Ngón áp út tay trái đặt ở phím nào tại vị trí xuất phát?",
+                options: ["Phím S", "Phím A", "Phím D", "Phím F"],
+                answer: 0,
+                difficulty: "medium",
+                explain: "Vị trí xuất phát tay trái: Ut(A), Áp út(S), Giữa(D), Trỏ(F)."
+            },
+            {
+                q: "Ngón giữa tay trái đặt ở phím xuất phát nào?",
+                options: ["Phím D", "Phím S", "Phím F", "Phím A"],
+                answer: 0,
+                difficulty: "medium",
+                explain: "Ngón giữa tay trái đặt ở phím D trên hàng phím cơ sở."
+            },
+            {
+                q: "Ngón út tay trái đặt ở phím xuất phát nào?",
+                options: ["Phím A", "Phím S", "Phím D", "Phím F"],
+                answer: 0,
+                difficulty: "medium",
+                explain: "Ngón út tay trái đặt lên phím A."
+            },
+            {
+                q: "Ngón út tay phải đặt ở phím xuất phát nào?",
+                options: ["Phím dấu chấm phẩy (;)", "Phím L", "Phím K", "Phím J"],
+                answer: 0,
+                difficulty: "medium",
+                explain: "Vị trí xuất phát tay phải: Trỏ(J), Giữa(K), Áp út(L), Út(;)."
+            },
+            {
+                q: "Ngón áp út tay phải đặt ở phím xuất phát nào?",
+                options: ["Phím L", "Phím K", "Phím J", "Phím ;"],
+                answer: 0,
+                difficulty: "medium",
+                explain: "Ngón áp út tay phải đặt trên phím L."
+            },
+            {
+                q: "Ngón giữa tay phải đặt ở phím xuất phát nào?",
+                options: ["Phím K", "Phím J", "Phím L", "Phím ;"],
+                answer: 0,
+                difficulty: "medium",
+                explain: "Ngón giữa tay phải đặt trên phím K."
+            },
+            {
+                q: "Khi gõ số 112, phím số 2 do ngón tay nào thực hiện?",
+                options: ["Ngón áp út tay trái", "Ngón út tay trái", "Ngón giữa tay trái", "Ngón trỏ tay trái"],
+                answer: 0,
+                difficulty: "medium",
+                explain: "Số 2 do ngón áp út tay trái gõ."
+            },
+            {
+                q: "Gõ đúng cách giúp em tiết kiệm được hai điều gì?",
+                options: ["Thời gian và công sức", "Tiền bạc và điện năng", "Giấy in và mực in", "Bộ nhớ máy tính"],
+                answer: 0,
+                difficulty: "medium",
+                explain: "Theo bài học: Gõ đúng cách giúp em 'tiết kiệm thời gian và công sức'."
+            },
+            {
+                q: "Khi thực hành gõ đoạn thơ 'LÀM ANH', em nên mở phần mềm nào?",
+                options: ["Notepad", "Calculator", "Paint", "Windows Media Player"],
+                answer: 0,
+                difficulty: "medium",
+                explain: "Hướng dẫn thực hành Nhiệm vụ 1 dùng phần mềm Notepad."
+            },
+            {
+                q: "Dấu phẩy trong câu văn bản được gõ ở vị trí nào?",
+                options: ["Liền sau từ đứng trước, không cách", "Cách 1 khoảng trắng với từ trước", "Cách 2 khoảng trắng", "Đứng một mình độc lập"],
+                answer: 0,
+                difficulty: "medium",
+                explain: "Dấu phẩy viết liền sát ký tự cuối của từ phía trước."
+            },
+            {
+                q: "Sau dấu chấm câu, em phải gõ thao tác gì trước khi gõ từ tiếp theo?",
+                options: ["Gõ 1 phím cách (Spacebar)", "Gõ Enter", "Gõ Tab", "Không cần gõ gì"],
+                answer: 0,
+                difficulty: "medium",
+                explain: "Sau dấu chấm luôn có 1 khoảng trắng (phím cách) trước từ mới."
+            },
+            {
+                q: "Gõ mười ngón bàn phím là kỹ năng cần được làm gì để thành thạo?",
+                options: ["Luyện tập thường xuyên", "Chỉ học lý thuyết 1 lần", "Nhìn bàn phím liên tục", "Chỉ dùng khi thi"],
+                answer: 0,
+                difficulty: "medium",
+                explain: "Chỉ có luyện tập thường xuyên mới giúp hình thành phản xạ gõ mười ngón."
+            },
+            {
+                q: "Khi ngồi gõ bàn phím, tư thế ngồi tốt nhất là gì?",
+                options: ["Lưng thẳng, mắt nhìn ngang màn hình", "Cúi sát mắt vào màn hình", "Nằm ra bàn", "Nghiêng người sang một bên"],
+                answer: 0,
+                difficulty: "medium",
+                explain: "Tư thế chuẩn: Giữ lưng thẳng, mắt nhìn thẳng hướng màn hình."
+            },
+
+            // --- 30 HARD QUESTIONS ---
+            {
+                q: "Để gõ dãy số ngày tháng '365', em cần dùng lần lượt các ngón tay nào?",
+                options: [
+                    "Ngón giữa trái (3) ➔ Ngón trỏ phải (6) ➔ Ngón trỏ trái (5)",
+                    "Ngón út trái ➔ Ngón giữa phải ➔ Ngón trỏ phải",
+                    "Ngón áp út trái ➔ Ngón trỏ trái ➔ Ngón áp út phải",
+                    "Chỉ dùng ngón trỏ tay phải gõ cả 3 số"
+                ],
+                answer: 0,
+                difficulty: "hard",
+                explain: "Số 3 (ngón giữa trái), số 6 (ngón trỏ phải), số 5 (ngón trỏ trái)."
+            },
+            {
+                q: "Hãy sắp xếp các bước đúng khi gõ một phím trên hàng phím số:\n(1) Vươn ngón tay gõ phím số.\n(2) Đặt tay ở vị trí xuất phát.\n(3) Đưa ngón tay về vị trí xuất phát.",
+                options: ["(2) ➔ (1) ➔ (3)", "(1) ➔ (2) ➔ (3)", "(3) ➔ (1) ➔ (2)", "(2) ➔ (3) ➔ (1)"],
+                answer: 0,
+                difficulty: "hard",
+                explain: "Thứ tự chính xác: Đặt tay xuất phát ➔ Vươn ngón gõ phím ➔ Rút ngón tay về vị trí xuất phát."
+            },
+            {
+                q: "Gõ chuỗi số khẩn cấp '111', '112', '113', ngón tay nào làm việc nhiều nhất?",
+                options: ["Ngón út tay trái", "Ngón trỏ tay phải", "Ngón giữa tay trái", "Ngón trỏ tay trái"],
+                answer: 0,
+                difficulty: "hard",
+                explain: "Chữ số '1' xuất hiện 7 lần trong chuỗi, đều do ngón út tay trái phụ trách."
+            },
+            {
+                q: "Khi gõ các tháng có 31 ngày: '1, 3, 5, 7, 8, 10, 12', ngón giữa tay trái phụ trách gõ các số nào?",
+                options: ["Số 3", "Số 1", "Số 5", "Số 7"],
+                answer: 0,
+                difficulty: "hard",
+                explain: "Ngón giữa tay trái phụ trách duy nhất phím số 3 trên hàng phím số."
+            },
+            {
+                q: "Ghép ngón tay với phím phụ trách đúng:\n1) Ngón trỏ tay trái  -  a) Phím 6, 7\n2) Ngón trỏ tay phải  -  b) Phím 4, 5",
+                options: ["1 - b, 2 - a", "1 - a, 2 - b", "1 - a, 2 - a", "1 - b, 2 - b"],
+                answer: 0,
+                difficulty: "hard",
+                explain: "Ngón trỏ trái gõ phím 4, 5 (1-b); Ngón trỏ phải gõ phím 6, 7 (2-a)."
+            },
+            {
+                q: "Ghép ngón tay với phím phụ trách đúng:\n1) Ngón giữa tay trái  -  a) Phím 8\n2) Ngón giữa tay phải  -  b) Phím 3",
+                options: ["1 - b, 2 - a", "1 - a, 2 - b", "1 - a, 2 - a", "1 - b, 2 - b"],
+                answer: 0,
+                difficulty: "hard",
+                explain: "Ngón giữa trái gõ phím 3 (1-b); Ngón giữa phải gõ phím 8 (2-a)."
+            },
+            {
+                q: "Ghép ngón tay với phím phụ trách đúng:\n1) Ngón áp út tay trái - a) Phím 9\n2) Ngón áp út tay phải - b) Phím 2",
+                options: ["1 - b, 2 - a", "1 - a, 2 - b", "1 - a, 2 - a", "1 - b, 2 - b"],
+                answer: 0,
+                difficulty: "hard",
+                explain: "Ngón áp út trái gõ phím 2 (1-b); Ngón áp út phải gõ phím 9 (2-a)."
+            },
+            {
+                q: "Ghép ngón tay với phím phụ trách đúng:\n1) Ngón út tay trái  - a) Phím 0\n2) Ngón út tay phải  - b) Phím 1",
+                options: ["1 - b, 2 - a", "1 - a, 2 - b", "1 - a, 2 - a", "1 - b, 2 - b"],
+                answer: 0,
+                difficulty: "hard",
+                explain: "Ngón út trái gõ phím 1 (1-b); Ngón út phải gõ phím 0 (2-a)."
+            },
+            {
+                q: "Khi gõ số năm nhuận '366', em sử dụng sự kết hợp ngón tay như thế nào?",
+                options: [
+                    "Ngón giữa tay trái gõ 3, ngón trỏ tay phải gõ 6 hai lần",
+                    "Ngón trỏ tay trái gõ 3, ngón giữa tay phải gõ 6",
+                    "Ngón út tay trái gõ cả 3 số",
+                    "Ngón trỏ tay phải gõ cả 366"
+                ],
+                answer: 0,
+                difficulty: "hard",
+                explain: "Số 3 (ngón giữa trái), số 6 (ngón trỏ phải gõ 2 lần liên tiếp)."
+            },
+            {
+                q: "Phát biểu nào sau đây là SAI khi gõ phím số?",
+                options: [
+                    "Giữ nguyên ngón tay trên phím số sau khi gõ xong để đợi gõ tiếp",
+                    "Luôn xuất phát từ hàng phím cơ sở",
+                    "Mỗi ngón tay phụ trách một số phím cố định",
+                    "Đưa ngón tay về vị trí xuất phát ngay sau khi gõ"
+                ],
+                answer: 0,
+                difficulty: "hard",
+                explain: "Phát biểu sai là giữ ngón tay trên phím số. Quy tắc chuẩn phải lập tức thu ngón tay về vị trí xuất phát."
+            },
+            {
+                q: "Nhận định nào ĐÚNG VỀ KỸ THUẬT gõ khoảng trắng (Spacebar)?",
+                options: [
+                    "Sử dụng một trong hai ngón tay cái để nhấn phím cách",
+                    "Dùng ngón trỏ tay phải để nhấn phím cách",
+                    "Dùng ngón út tay trái để nhấn phím cách",
+                    "Bấm phím cách 2 lần liên tục giữa mỗi từ"
+                ],
+                answer: 0,
+                difficulty: "hard",
+                explain: "Phím cách nằm ở vị trí phụ trách của hai ngón tay cái."
+            },
+            {
+                q: "Để gõ cụm từ 'Tháng 2', quy trình thao tác chuẩn xác nhất là gì?",
+                options: [
+                    "Gõ 'Tháng' ➔ Phím cách ➔ Ngón áp út trái vươn gõ phím '2' ➔ Thu ngón tay về",
+                    "Gõ 'Tháng' ➔ Gõ số '2' liền ➔ Bấm cách",
+                    "Gõ 'Tháng' ➔ Giữ ngón tay trên số 2",
+                    "Dùng ngón trỏ phải gõ số 2"
+                ],
+                answer: 0,
+                difficulty: "hard",
+                explain: "Gõ từ ➔ Phím cách ➔ Vươn ngón áp út trái gõ 2 ➔ Rút về xuất phát."
+            },
+            {
+                q: "Số 0 và phím Backspace nằm ở khu vực do bàn tay nào đảm nhận?",
+                options: ["Khu vực bên phải, do ngón út tay phải phụ trách", "Khu vực giữa do 2 ngón trỏ", "Khu vực bên trái do tay trái", "Do 2 ngón cái phụ trách"],
+                answer: 0,
+                difficulty: "hard",
+                explain: "Phím 0 và phím Backspace nằm ở tận cùng bên phải hàng phím số do ngón út tay phải gõ."
+            },
+            {
+                q: "Trong các số tổng đài khẩn cấp: 111, 112, 113, 114, 115, số nào CÓ DÙNG ngón trỏ tay phải để gõ?",
+                options: ["Không có số nào (Tất cả đều dùng tay trái)", "Số 113", "Số 114", "Số 115"],
+                answer: 0,
+                difficulty: "hard",
+                explain: "Các chữ số 1, 2, 3, 4, 5 đều thuộc khu vực bàn tay trái gõ. Tay phải không tham gia gõ các số này."
+            },
+            {
+                q: "Khi gõ dãy số liên tiếp '4, 5, 6, 7', các ngón tay gõ lần lượt là:",
+                options: [
+                    "Ngón trỏ trái (gõ 4, 5) ➔ Ngón trỏ phải (gõ 6, 7)",
+                    "Ngón giữa trái ➔ Ngón áp út trái ➔ Ngón giữa phải ➔ Ngón út phải",
+                    "Ngón út trái ➔ Ngón áp út trái ➔ Ngón trỏ phải ➔ Ngón giữa phải",
+                    "Chỉ dùng duy nhất ngón trỏ tay trái"
+                ],
+                answer: 0,
+                difficulty: "hard",
+                explain: "4, 5 do ngón trỏ trái phụ trách; 6, 7 do ngón trỏ phải phụ trách."
+            },
+            {
+                q: "Xét câu văn: 'Hà Nội, ngày 10 tháng 10.' Đoạn văn trên có bao nhiêu dấu cách đúng quy chuẩn?",
+                options: ["4 dấu cách (sau dấu phẩy, sau 10, sau tháng, sau 10)", "2 dấu cách", "6 dấu cách", "Không có dấu cách"],
+                answer: 0,
+                difficulty: "hard",
+                explain: "Cấu trúc: 'Hà[cách]Nội,[cách]ngày[cách]10[cách]tháng[cách]10.' ➔ Có 5 khoảng cách chuẩn."
+            },
+            {
+                q: "Lý do chính tại sao phím 4 và 5 lại do CÙNG MỘT ngón trỏ tay trái phụ trách?",
+                options: [
+                    "Số lượng phím số (10 phím từ 0-9) nhiều hơn số ngón tay gõ (8 ngón linh hoạt)",
+                    "Vì ngón trỏ ngắn hơn các ngón khác",
+                    "Vì phím 4 và 5 gần phím cách nhất",
+                    "Do quy định ngẫu nhiên không có nguyên tắc"
+                ],
+                answer: 0,
+                difficulty: "hard",
+                explain: "Có 10 phím số nhưng chỉ có 8 ngón tay gõ chính (trừ 2 ngón cái) nên 2 ngón trỏ phải phụ trách mỗi ngón 2 phím số."
+            },
+            {
+                q: "Bạn An nói: 'Khi gõ phím số 9, em dùng ngón giữa tay phải'. An nói ĐÚNG hay SAI?",
+                options: [
+                    "Sai, phím 9 do ngón áp út tay phải phụ trách",
+                    "Đúng, ngón giữa tay phải gõ số 9",
+                    "Sai, phím 9 do ngón út tay phải phụ trách",
+                    "Sai, phím 9 do ngón trỏ tay phải phụ trách"
+                ],
+                answer: 0,
+                difficulty: "hard",
+                explain: "An nói sai vì ngón giữa tay phải gõ số 8, còn số 9 phải do ngón áp út tay phải gõ."
+            },
+            {
+                q: "Bạn Bình nói: 'Phím số 0 do ngón út tay phải phụ trách'. Bình nói ĐÚNG hay SAI?",
+                options: [
+                    "Đúng, ngón út tay phải đảm nhận phím 0",
+                    "Sai, ngón út tay phải gõ phím 9",
+                    "Sai, ngón áp út gõ phím 0",
+                    "Sai, ngón cái gõ phím 0"
+                ],
+                answer: 0,
+                difficulty: "hard",
+                explain: "Bình nói hoàn toàn chính xác."
+            },
+            {
+                q: "Số ngày trong các tháng '4, 6, 9, 11' đều có 30 ngày. Để gõ danh sách này, ngón trỏ tay phải làm việc gõ những phím số nào?",
+                options: ["Phím số 6", "Phím số 4 và 9", "Phím số 1", "Phím số 3"],
+                answer: 0,
+                difficulty: "hard",
+                explain: "Trong dãy '4, 6, 9, 11', phím số 6 do ngón trỏ tay phải phụ trách."
+            },
+            {
+                q: "Khi gõ số '28' (số ngày tháng 2), sự di chuyển của ngón tay là:",
+                options: [
+                    "Ngón áp út trái vươn gõ 2 ➔ Rút về ➔ Ngón giữa phải vươn gõ 8 ➔ Rút về",
+                    "Ngón út trái gõ 2 ➔ Ngón trỏ phải gõ 8",
+                    "Giữ hai ngón tay trên hàng phím số",
+                    "Ngón trỏ trái gõ 2 ➔ Ngón trỏ phải gõ 8"
+                ],
+                answer: 0,
+                difficulty: "hard",
+                explain: "Số 2 (áp út trái vươn rồi rút về), số 8 (giữa phải vươn rồi rút về xuất phát)."
+            },
+            {
+                q: "Tại sao tư thế gõ đúng cách lại giúp tiết kiệm công sức lâu dài?",
+                options: [
+                    "Vì cơ tay và mắt làm việc nhịp nhàng, không bị căng mỏi quá mức",
+                    "Vì gõ đúng cách sẽ tốn ít điện máy tính hơn",
+                    "Vì không phải gõ các dấu câu",
+                    "Vì bàn phím sẽ tự gõ chữ"
+                ],
+                answer: 0,
+                difficulty: "hard",
+                explain: "Phân công 10 ngón đều đặn giúp giảm áp lực cho từng ngón và giữ tư thế ngồi thẳng không mỏi."
+            },
+            {
+                q: "Để gõ cụm ký tự số '1234567890', thứ tự các ngón tay gõ từ trái sang phải là:",
+                options: [
+                    "Út T ➔ Áp út T ➔ Giữa T ➔ Trỏ T (4,5) ➔ Trỏ P (6,7) ➔ Giữa P ➔ Áp út P ➔ Út P",
+                    "Trỏ T ➔ Trỏ P ➔ Giữa T ➔ Giữa P ➔ Áp út T ➔ Áp út P",
+                    "Ngón cái trái ➔ Ngón cái phải liên tục",
+                    "Út P ➔ Áp út P ➔ Giữa P ➔ Trỏ P ➔ Trỏ T"
+                ],
+                answer: 0,
+                difficulty: "hard",
+                explain: "Thứ tự ngón tay quét từ trái sang phải đúng theo phân công bàn tay."
+            },
+            {
+                q: "Trong đoạn thơ 'LÀM ANH' thực hành ở Nhiệm vụ 1, phím Shift hoặc Caps Lock được sử dụng nhằm mục đích gì?",
+                options: [
+                    "Viết hoa chữ cái đầu mỗi dòng thơ (L, M, C, A, N, T...)",
+                    "Xóa các chữ gõ sai",
+                    "Tạo khoảng trắng giữa các từ",
+                    "Lưu bài thơ vào máy"
+                ],
+                answer: 0,
+                difficulty: "hard",
+                explain: "Phím Shift/Caps Lock giúp gõ ký tự hoa ở đầu mỗi câu thơ."
+            },
+            {
+                q: "Khi gõ số '112' (Cứu nạn) và '115' (Cấp cứu), sự khác biệt ở ký tự cuối cùng là do ngón nào phụ trách?",
+                options: [
+                    "Số 2 (ngón áp út trái) và Số 5 (ngón trỏ trái)",
+                    "Số 2 (ngón trỏ trái) và Số 5 (ngón giữa trái)",
+                    "Số 2 (ngón giữa trái) và Số 5 (ngón áp út trái)",
+                    "Cả hai số đều do ngón trỏ phải gõ"
+                ],
+                answer: 0,
+                difficulty: "hard",
+                explain: "Khác biệt: số 2 gõ bằng ngón áp út trái, số 5 gõ bằng ngón trỏ trái."
+            },
+            {
+                q: "Nếu em gõ sai từ 'Tin hooc' và muốn sửa thành 'Tin học', em thao tác ra sao?",
+                options: [
+                    "Nhấn Backspace xóa bớt ký tự sai rồi gõ lại cho đúng",
+                    "Nhấn Enter rồi gõ lại",
+                    "Nhấn phím Spacebar 5 lần",
+                    "Tắt phần mềm Notepad"
+                ],
+                answer: 0,
+                difficulty: "hard",
+                explain: "Dùng phím Backspace xóa chữ thừa/sai rồi gõ ký tự đúng."
+            },
+            {
+                q: "Điều nào sau đây là NGUYÊN TẮC VÀNG khi luyện tập gõ mười ngón?",
+                options: [
+                    "Chậm nhưng đúng ngón tay, dần dần mới tăng tốc độ",
+                    "Gõ thật nhanh bằng 2 ngón trỏ",
+                    "Nhìn chặt vào bàn phím để không gõ nhầm",
+                    "Chỉ gõ bằng tay thuận"
+                ],
+                answer: 0,
+                difficulty: "hard",
+                explain: "Nguyên tắc vàng: Đặt đúng ngón và gõ đúng quy tắc trước, tốc độ sẽ tự tăng theo thời gian."
+            },
+            {
+                q: "Hai phím nào trên hàng phím cơ sở có gờ nổi (gai) giúp ngón trỏ định vị mà không cần nhìn?",
+                options: ["Phím F và phím J", "Phím G và phím H", "Phím A và phím L", "Phím D và phím K"],
+                answer: 0,
+                difficulty: "hard",
+                explain: "Hai phím F và J có gờ nổi làm điểm mốc đặt 2 ngón trỏ."
+            },
+            {
+                q: "Hành động nào sau đây BỊ CẤM khi thực hiện quy tắc gõ mười ngón chuẩn?",
+                options: [
+                    "Dùng ngón trỏ tay phải vươn sang gõ phím số 1",
+                    "Dùng ngón út tay trái gõ phím số 1",
+                    "Rút ngón tay về vị trí xuất phát sau khi gõ",
+                    "Đặt 2 ngón cái lên phím cách"
+                ],
+                answer: 0,
+                difficulty: "hard",
+                explain: "Bắt ngón trỏ phải vươn tận sang phím 1 là sai quy tắc phân công ngón tay."
+            },
+            {
+                q: "Năm nhuận có 366 ngày. Để gõ số '366', em sẽ dùng bao nhiêu ngón tay khác nhau?",
+                options: [
+                    "2 ngón tay (Ngón giữa trái gõ 3 và Ngón trỏ phải gõ 6)",
+                    "3 ngón tay",
+                    "1 ngón tay",
+                    "4 ngón tay"
+                ],
+                answer: 0,
+                difficulty: "hard",
+                explain: "Chỉ dùng 2 ngón: Ngón giữa trái (cho số 3) và Ngón trỏ phải (cho số 6 gõ 2 lần)."
+            }
+        ];
+
+        // GAME STATE
+        let activeQuestions = [];
+        let currentIndex = 0;
+        let score = 0;
+        let timer = null;
+        let timeLeft = 30;
+        let answered = false;
+        let soundEnabled = true;
+
+        // LOCAL STORAGE STATS
+        let stats = {
+            highScore: localStorage.getItem('typing_quiz_high') || 0,
+            attempts: parseInt(localStorage.getItem('typing_quiz_attempts') || '0'),
+            lastScore: localStorage.getItem('typing_quiz_last') || null
+        };
+
+        // SOUND SYNTHESIZER (Web Audio API)
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        let audioCtx = null;
+
+        function initAudio() {
+            if (!audioCtx) {
+                audioCtx = new AudioContext();
+            }
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+        }
+
+        function playSound(type) {
+            if (!soundEnabled) return;
+            try {
+                initAudio();
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+
+                const now = audioCtx.currentTime;
+
+                if (type === 'click') {
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(600, now);
+                    gain.gain.setValueAtTime(0.1, now);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.05);
+                    osc.start(now);
+                    osc.stop(now + 0.05);
+                } else if (type === 'correct') {
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(523.25, now); // C5
+                    osc.frequency.setValueAtTime(659.25, now + 0.1); // E5
+                    osc.frequency.setValueAtTime(783.99, now + 0.2); // G5
+                    gain.gain.setValueAtTime(0.2, now);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.4);
+                    osc.start(now);
+                    osc.stop(now + 0.4);
+                } else if (type === 'wrong') {
+                    osc.type = 'sawtooth';
+                    osc.frequency.setValueAtTime(220, now);
+                    osc.frequency.setValueAtTime(180, now + 0.15);
+                    gain.gain.setValueAtTime(0.25, now);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.35);
+                    osc.start(now);
+                    osc.stop(now + 0.35);
+                } else if (type === 'tick') {
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(800, now);
+                    gain.gain.setValueAtTime(0.05, now);
+                    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.03);
+                    osc.start(now);
+                    osc.stop(now + 0.03);
+                } else if (type === 'win') {
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(440, now);
+                    osc.frequency.setValueAtTime(554.37, now + 0.12);
+                    osc.frequency.setValueAtTime(659.25, now + 0.24);
+                    osc.frequency.setValueAtTime(880, now + 0.36);
+                    gain.gain.setValueAtTime(0.3, now);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.6);
+                    osc.start(now);
+                    osc.stop(now + 0.6);
+                }
+            } catch (e) {
+                console.log("Audio play error", e);
+            }
+        }
+
+        function toggleSound() {
+            soundEnabled = !soundEnabled;
+            document.getElementById('soundIcon').innerText = soundEnabled ? '🔊' : '🔇';
+            document.getElementById('soundText').innerText = soundEnabled ? 'Bật âm thanh' : 'Tắt âm thanh';
+        }
+
+        // UPDATE STATS UI
+        function updateStatsUI() {
+            document.getElementById('statHighScore').innerText = `${stats.highScore} / 10`;
+            document.getElementById('statAttempts').innerText = `${stats.attempts} lần`;
+            document.getElementById('statLastScore').innerText = stats.lastScore !== null ? `${stats.lastScore}/10 điểm` : 'Chưa có';
+        }
+
+        // SAMPLE 10 QUESTIONS (7 Medium, 3 Hard) & SHUFFLE OPTIONS
+        function getRandomQuestions() {
+            const mediums = QUESTION_POOL.filter(q => q.difficulty === 'medium');
+            const hards = QUESTION_POOL.filter(q => q.difficulty === 'hard');
+
+            // Helper to shuffle array
+            const shuffle = arr => [...arr].sort(() => Math.random() - 0.5);
+
+            const selectedMediums = shuffle(mediums).slice(0, 7);
+            const selectedHards = shuffle(hards).slice(0, 3);
+
+            const combined = shuffle([...selectedMediums, ...selectedHards]);
+
+            // Format & shuffle options for each question
+            return combined.map((qObj, index) => {
+                const rawOptions = qObj.options.map((optText, idx) => ({
+                    text: optText,
+                    isCorrect: idx === qObj.answer
+                }));
+
+                const shuffledOptions = shuffle(rawOptions);
+
+                return {
+                    id: index + 1,
+                    question: qObj.q,
+                    difficulty: qObj.difficulty,
+                    explain: qObj.explain,
+                    options: shuffledOptions,
+                    userAnswer: null,
+                    isCorrect: null
+                };
+            });
+        }
+
+        // START GAME
+        function startGame() {
+            playSound('click');
+            initAudio();
+
+            activeQuestions = getRandomQuestions();
+            currentIndex = 0;
+            score = 0;
+            answered = false;
+
+            document.getElementById('startScreen').classList.add('hidden');
+            document.getElementById('resultScreen').classList.add('hidden');
+            document.getElementById('gameScreen').classList.remove('hidden');
+
+            renderQuestionIndexGrid();
+            loadQuestion(0);
+        }
+
+        // RENDER QUESTION INDEX GRID
+        function renderQuestionIndexGrid() {
+            const grid = document.getElementById('questionIndexGrid');
+            grid.innerHTML = '';
+
+            for (let i = 0; i < 10; i++) {
+                const btn = document.createElement('div');
+                btn.id = `qGridNode_${i}`;
+                btn.className = `h-10 rounded-xl flex items-center justify-center font-bold text-xs border transition-all ${
+                    i === currentIndex 
+                        ? 'bg-blue-600 border-blue-400 text-white shadow-md' 
+                        : 'bg-slate-800/80 border-slate-700 text-slate-400'
+                }`;
+                btn.innerText = i + 1;
+                grid.appendChild(btn);
+            }
+        }
+
+        // LOAD SPECIFIC QUESTION
+        function loadQuestion(index) {
+            currentIndex = index;
+            answered = false;
+            const qData = activeQuestions[index];
+
+            // UI Header updates
+            document.getElementById('currentQNumText').innerText = index + 1;
+            const diffBadge = document.getElementById('difficultyBadge');
+            if (qData.difficulty === 'medium') {
+                diffBadge.innerText = "Độ khó: Trung bình (70%)";
+                diffBadge.className = "px-3 py-1 rounded-full text-xs font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30";
+            } else {
+                diffBadge.innerText = "Độ khó: KHÓ (30%)";
+                diffBadge.className = "px-3 py-1 rounded-full text-xs font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30";
+            }
+
+            // Question text
+            document.getElementById('questionText').innerText = qData.question;
+
+            // Render 4 options in 2 columns (A, B, C, D)
+            const optionsContainer = document.getElementById('optionsContainer');
+            optionsContainer.innerHTML = '';
+
+            const prefixes = ['A', 'B', 'C', 'D'];
+
+            qData.options.forEach((opt, optIdx) => {
+                const btn = document.createElement('button');
+                btn.className = `btn-option w-full p-4 rounded-2xl bg-slate-800/90 border border-slate-700 text-left text-white font-medium flex items-start space-x-3 text-base md:text-lg`;
+                btn.onclick = () => selectOption(optIdx);
+
+                btn.innerHTML = `
+                    <span class="w-8 h-8 rounded-xl bg-slate-700/80 border border-slate-600 text-blue-400 flex items-center justify-center font-bold text-sm shrink-0">
+                        ${prefixes[optIdx]}
+                    </span>
+                    <span class="pt-0.5 leading-snug">${opt.text}</span>
+                `;
+                optionsContainer.appendChild(btn);
+            });
+
+            // Hide explanation box
+            document.getElementById('explanationBox').classList.add('hidden');
+
+            // Update question index node active style
+            updateGridNodeStyles();
+
+            // Start Timer (30 seconds)
+            startTimer();
+        }
+
+        // UPDATE GRID STYLES IN SIDEBAR
+        function updateGridNodeStyles() {
+            for (let i = 0; i < 10; i++) {
+                const node = document.getElementById(`qGridNode_${i}`);
+                if (!node) continue;
+
+                const q = activeQuestions[i];
+                if (q.userAnswer !== null) {
+                    if (q.isCorrect) {
+                        node.className = 'h-10 rounded-xl flex items-center justify-center font-bold text-xs bg-emerald-600/30 border border-emerald-500 text-emerald-300';
+                    } else {
+                        node.className = 'h-10 rounded-xl flex items-center justify-center font-bold text-xs bg-red-600/30 border border-red-500 text-red-300';
+                    }
+                } else if (i === currentIndex) {
+                    node.className = 'h-10 rounded-xl flex items-center justify-center font-bold text-xs bg-blue-600 border border-blue-400 text-white shadow-lg shadow-blue-500/30';
+                } else {
+                    node.className = 'h-10 rounded-xl flex items-center justify-center font-bold text-xs bg-slate-800/80 border border-slate-700 text-slate-400';
+                }
+            }
+        }
+
+        // TIMER LOGIC
+        function startTimer() {
+            clearInterval(timer);
+            timeLeft = 30;
+            updateTimerDisplay();
+
+            timer = setInterval(() => {
+                timeLeft--;
+                updateTimerDisplay();
+
+                if (timeLeft <= 5 && timeLeft > 0) {
+                    playSound('tick');
+                }
+
+                if (timeLeft <= 0) {
+                    clearInterval(timer);
+                    handleTimeout();
+                }
+            }, 1000);
+        }
+
+        function updateTimerDisplay() {
+            const timerText = document.getElementById('timerText');
+            const timerBar = document.getElementById('timerBar');
+
+            timerText.innerText = `${timeLeft}s`;
+            const pct = (timeLeft / 30) * 100;
+            timerBar.style.width = `${pct}%`;
+
+            if (timeLeft <= 5) {
+                timerText.classList.add('timer-warning');
+                timerBar.className = 'bg-red-500 h-full w-full transition-all duration-1000 ease-linear';
+            } else {
+                timerText.classList.remove('timer-warning');
+                timerBar.className = 'bg-blue-500 h-full w-full transition-all duration-1000 ease-linear';
+            }
+        }
+
+        // HANDLE TIMEOUT
+        function handleTimeout() {
+            if (answered) return;
+            answered = true;
+            playSound('wrong');
+
+            const qData = activeQuestions[currentIndex];
+            qData.userAnswer = -1;
+            qData.isCorrect = false;
+
+            highlightOptions(-1);
+            showExplanation();
+            updateGridNodeStyles();
+        }
+
+        // OPTION SELECTION
+        function selectOption(selectedIndex) {
+            if (answered) return;
+            answered = true;
+            clearInterval(timer);
+
+            const qData = activeQuestions[currentIndex];
+            qData.userAnswer = selectedIndex;
+
+            const selectedOpt = qData.options[selectedIndex];
+            if (selectedOpt.isCorrect) {
+                qData.isCorrect = true;
+                score++;
+                playSound('correct');
+            } else {
+                qData.isCorrect = false;
+                playSound('wrong');
+            }
+
+            highlightOptions(selectedIndex);
+            showExplanation();
+            updateGridNodeStyles();
+        }
+
+        // HIGHLIGHT CORRECT & INCORRECT OPTIONS
+        function highlightOptions(selectedIndex) {
+            const qData = activeQuestions[currentIndex];
+            const buttons = document.getElementById('optionsContainer').children;
+
+            qData.options.forEach((opt, idx) => {
+                const btn = buttons[idx];
+                btn.disabled = true;
+
+                if (opt.isCorrect) {
+                    btn.className = "btn-option w-full p-4 rounded-2xl bg-emerald-950/80 border-2 border-emerald-500 text-white font-medium flex items-start space-x-3 text-base md:text-lg glow-success";
+                } else if (idx === selectedIndex) {
+                    btn.className = "btn-option w-full p-4 rounded-2xl bg-red-950/80 border-2 border-red-500 text-white font-medium flex items-start space-x-3 text-base md:text-lg glow-danger";
+                } else {
+                    btn.className = "btn-option w-full p-4 rounded-2xl bg-slate-900/50 border border-slate-800 text-slate-500 font-medium flex items-start space-x-3 text-base md:text-lg opacity-50";
+                }
+            });
+        }
+
+        // SHOW EXPLANATION BOX
+        function showExplanation() {
+            const qData = activeQuestions[currentIndex];
+            const expBox = document.getElementById('explanationBox');
+            const expText = document.getElementById('explanationText');
+
+            expText.innerText = qData.explain;
+            expBox.classList.remove('hidden');
+
+            const nextBtn = document.getElementById('nextBtn');
+            if (currentIndex === 9) {
+                nextBtn.innerText = 'Xem kết quả 🏁';
+            } else {
+                nextBtn.innerText = 'Câu tiếp theo ➔';
+            }
+        }
+
+        // NEXT QUESTION OR FINISH
+        function nextQuestion() {
+            playSound('click');
+            if (currentIndex < 9) {
+                loadQuestion(currentIndex + 1);
+            } else {
+                finishGame();
+            }
+        }
+
+        // FINISH GAME & RECORD STATS
+        function finishGame() {
+            clearInterval(timer);
+            playSound('win');
+
+            document.getElementById('gameScreen').classList.add('hidden');
+            document.getElementById('resultScreen').classList.remove('hidden');
+
+            // Record Stats
+            stats.attempts += 1;
+            stats.lastScore = score;
+            if (score > stats.highScore) {
+                stats.highScore = score;
+            }
+
+            localStorage.setItem('typing_quiz_high', stats.highScore);
+            localStorage.setItem('typing_quiz_attempts', stats.attempts);
+            localStorage.setItem('typing_quiz_last', stats.lastScore);
+
+            updateStatsUI();
+
+            // Render result UI
+            document.getElementById('finalScoreText').innerText = score;
+            document.getElementById('correctCountText').innerText = score;
+            document.getElementById('wrongCountText').innerText = 10 - score;
+
+            const emoji = document.getElementById('resultEmoji');
+            const feedback = document.getElementById('resultFeedback');
+
+            if (score === 10) {
+                emoji.innerText = '🥇';
+                feedback.innerText = 'Xuất sắc tuyệt đối! Bạn là cao thủ gõ bàn phím!';
+            } else if (score >= 8) {
+                emoji.innerText = '🌟';
+                feedback.innerText = 'Kết quả rất giỏi! Hãy tiếp tục phát huy nhé!';
+            } else if (score >= 5) {
+                emoji.innerText = '👍';
+                feedback.innerText = 'Khá lắm! Luyện tập thêm để đạt 10/10 nhé!';
+            } else {
+                emoji.innerText = '💪';
+                feedback.innerText = 'Đừng nản lòng! Hãy ôn lại bài 2 và thử lại nhé!';
+            }
+        }
+
+        // INITIALIZATION
+        window.addEventListener('DOMContentLoaded', () => {
+            updateStatsUI();
+        });
+    </script>
+</body>
+</html>
